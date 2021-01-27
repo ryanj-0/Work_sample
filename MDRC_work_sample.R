@@ -11,10 +11,15 @@
 # This code is used to scale up when directories are shared and used under same name;
 # Set working directory [setwd()] as needed
 
-setwd(paste0("C:/Users/",Sys.info()[6],"/Documents/R/MDRC/MDRC_work_sample/"))
-dir <- getwd()
+if(getwd()==paste0("C:/Users/",Sys.info()[6],"/Documents/R/MDRC")){
+  dir <- getwd()
+  message(paste0("Working directory: ", getwd()))
+} else{
+  setwd(paste0("C:/Users/",Sys.info()[6],"/Documents/R/MDRC"))
+  message(paste0("Directory changed, set to: ", getwd()))
+}
 
-
+repo <- "/MDRC_sample"
 
 #### Loading Needed packages ####
 # Checks for needed package [pacman] and then loads other packages [pkgs]
@@ -28,7 +33,7 @@ pkgs <- c("data.table",
           "ggrepel",
           "svMisc")
 
-pacman::p_load(pkgs, character.only = TRUE)
+p_load(pkgs, character.only = TRUE)
 
 
 
@@ -36,15 +41,15 @@ pacman::p_load(pkgs, character.only = TRUE)
 
 # Variable Key
 key <- fread(file =
-               paste0(dir, "/MI Statewide Student Growth (File Layout Key).csv"))
+               paste0(dir, "/Data/MI Statewide Student Growth (File Layout Key).csv"))
 
 # 2015-2016 School Year
 year15 <- fread(file =
-                  paste0(dir, "/MI Statewide Student Growth 2015-16.csv"))
+                  paste0(dir, "/Data/MI Statewide Student Growth 2015-16.csv"))
 
 # 2016 - 2017 School Year
 year16 <- fread(file =
-                  paste0(dir, "/MI Statewide Student Growth 2016-17.csv"))
+                  paste0(dir, "/Data/MI Statewide Student Growth 2016-17.csv"))
 
 # All Years Table: 2015-2017
 yearall <- rbind(year15,year16,use.names = T)
@@ -87,7 +92,6 @@ yearall[TotalIncluded=="< 10",TotalIncluded:=10] #TotalIncluded: 10 = < 10
 
 # MeanSGP (Student Growth Percentile)
 yearall[MeanSGP=="< 10",MeanSGP:=10] #MeanSGP: 10 = < 10
-#---
 
 #### Set columns as numeric ###
 yearall[,':=' (IsdCode=as.numeric(IsdCode),
@@ -102,10 +106,8 @@ yearall[,':=' (IsdCode=as.numeric(IsdCode),
                PercentBelowAverage=as.numeric(PercentBelowAverage),
                TotalIncluded=as.numeric(TotalIncluded),
                MeanSGP=as.numeric(MeanSGP))]
-#---
 
-
-### Data Investigation While Cleaning (un-comment to run; highlight, ctrl+shift+c) ###
+### Use to investigate data while cleaning (un-comment to run; highlight, ctrl+shift+c) ###
 # View(unique(yearall[,1])) # School Year
 # View(unique(yearall[,2])) # IsdCode
 # View(unique(yearall[,3])) # IsdName
@@ -125,20 +127,15 @@ yearall[,':=' (IsdCode=as.numeric(IsdCode),
 # View(unique(yearall[,17])) # PBA
 # View(unique(yearall[,18])) # TotalIncluded
 # View(unique(yearall[,19])) # MeanSGP
-#---
 
-#---- End ----
+
 
 #----------- Section 1 ------------------#
-# Looking for Testing Group Disparities
-# by Year over Year (YoY) Changes, by ISD
+# Looking for Testing Group Disparities by ISD
+# Year over Year (YoY) changes by MeanSGP
 
-
-##### MeanSGP by Testing Group #####
-
-# Yoy MeanSGP change by ISD (All ISD included in DistrictCode=0), All Students (Grade)
+##### Yoy MeanSGP change by ISD ######
 isd.all.district.msgp <- yearall[DistrictCode==0 & Grade==0]
-isd.all.district.msgp <- isd.all.district.msgp[order(IsdCode,TestingGroup,Subject)] # reorder table
 isd.all.district.msgp[,c("DistrictCode",
                          "DistrictName",
                          "BuildingName",
@@ -151,11 +148,11 @@ isd.all.district.msgp[,c("DistrictCode",
                          "PercentAverageGrowth",
                          "PercentBelowAverage",
                          "TotalIncluded"):=NULL] #drop columns; interested in only MeanSGP by Testing Group
+# Need to split data into two different years to find YoY changes
 isd.all.district.msgp.15 <- isd.all.district.msgp[SchoolYear=="15/16"] # only 15/16 data
 isd.all.district.msgp.16 <- isd.all.district.msgp[SchoolYear=="16/17"] # only 16/17 data
 
 # Note: Our data set will be smaller. i.e. missing records across the years
-# finding YoY change of MeanSGP by Testing Group
 isd.all.district.msgp.delta <- merge(isd.all.district.msgp.15,
                                      isd.all.district.msgp.16,
                                      by = c("IsdCode",
@@ -166,29 +163,28 @@ isd.all.district.msgp.delta <- merge(isd.all.district.msgp.15,
                                      suffixes = c("old","new"))
 isd.all.district.msgp.delta[,delta:=MeanSGPnew-MeanSGPold]
 isd.all.district.msgp.delta[,c("SchoolYearold","SchoolYearnew","MeanSGPold","MeanSGPnew"):=NULL] # drop old columns
+isd.all.district.msgp <- isd.all.district.msgp[order(IsdCode,TestingGroup,Subject)] # reorder table for plotting
 
 #--- Plotting Section ---
+# open pdf to populate with graphs
+pdf(file = paste0(dir, repo, "/YoY Percent Changes in MeanSGP by ISD and Testing Group.pdf"), width = 11, height = 8.5)
 
-# All Subjects
-# open pdf to be able to populate with graphs
-pdf(file = paste0("C:/Users/johns/Desktop/Data_Analyst_Test/ISD Percent Changes in MeanSGP by Testing Group.pdf"), width = 11, height = 8.5)
+table.temp.math <- isd.all.district.msgp.delta[TestingGroup==testgroup & Subject=="Mathematics"]
+table.temp.ela <- isd.all.district.msgp.delta[TestingGroup==testgroup & Subject=="English Language Arts"]
+table.temp.sci <- isd.all.district.msgp.delta[TestingGroup==testgroup & Subject=="Science"]
 
 # for loop to plot the change in MeanSGP by testing group and subject; all combinations
-for (i in 1:(length(isd.all.district.msgp.delta[,unique(TestingGroup)])+1)) {
+for (isd in 1:(length(isd.all.district.msgp.delta[,unique(TestingGroup)])+1)) {
 
-  testgroup <- isd.all.district.msgp.delta[,unique(TestingGroup)][i] # sets TestingGroup for iteration
-  table.temp.math <- isd.all.district.msgp.delta[TestingGroup==testgroup & Subject=="Mathematics"]
-  table.temp.ela <- isd.all.district.msgp.delta[TestingGroup==testgroup & Subject=="English Language Arts"]
-  table.temp.sci <- isd.all.district.msgp.delta[TestingGroup==testgroup & Subject=="Science"]
+  testgroup <- isd.all.district.msgp.delta[,unique(TestingGroup)][isd] # sets TestingGroup for iteration
 
-  # if statement to close pdf
+  # Once if statement finish, closes pdf
   if(i==length(isd.all.district.msgp.delta[,unique(TestingGroup)])+1){
     dev.off()
   }
+  # Plots each subject for current testing group
   else{
-    # Plots
-
-    print(testgroup) # Prints in console what testing group is being used when making graphs
+    message("Plotting subjects for ", testgroup) # Prints in console what testing group is being used when making graphs
 
     # Math Plot
     plotty.math <-
