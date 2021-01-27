@@ -19,7 +19,9 @@ if(getwd()==paste0("C:/Users/",Sys.info()[6],"/Documents/R/MDRC")){
   message(paste0("Directory changed, set to: ", getwd()))
 }
 
+# Set variables and sources needed functions
 repo <- "/MDRC_sample"
+source(paste0(dir,repo,"/plot_function_section1.R"))
 
 #### Loading Needed packages ####
 # Checks for needed package [pacman] and then loads other packages [pkgs]
@@ -185,67 +187,7 @@ for (isd in 1:(length(isd.all.district.msgp.delta[,unique(TestingGroup)])+1)) {
   # Plots each subject for current testing group
   else{
     message("Plotting subjects for ", testgroup) # Prints in console what testing group is being used when making graphs
-
-    # Math Plot
-    plotty.math <-
-      ggplot(table.temp.math,aes(x = reorder(IsdName, delta), y = delta, fill = delta)) +
-      geom_hline(yintercept = 0) +
-      geom_bar(stat = "identity", width = 0.5) +
-      scale_fill_gradient2(low = "red4",
-                           mid = "steelblue3",
-                           high = "green",
-                           midpoint = 0,
-                           space = "Lab",
-                           name = "% Change: Mean SGP*") +
-      labs(title = "Percent Changes in Mean SGP* from 2015/2016 - 2016/2017 ",
-           subtitle = paste0("Mathematics: All Grades, ",testgroup),
-           caption = "*Mean Student Growth Percentile (Mean SGP)") +
-      xlab("ISD Name") +
-      ylab("Percent Change") +
-      theme(legend.position = "top",
-            plot.caption = element_text(hjust = 0)) +
-      coord_flip()
-
-    # ELA Plot
-    plotty.ela <-
-      ggplot(table.temp.ela,aes(x = reorder(IsdName, delta), y = delta, fill = delta)) +
-      geom_hline(yintercept = 0) +
-      geom_bar(stat = "identity", width = 0.5) +
-      scale_fill_gradient2(low = "red4",
-                           mid = "steelblue3",
-                           high = "green",
-                           midpoint = 0,
-                           space = "Lab",
-                           name = "% Change: Mean SGP*") +
-      labs(title = "Percent Changes in Mean SGP* from 2015/2016 - 2016/2017 ",
-           subtitle = paste0("English Language Arts: All Grades, ",testgroup),
-           caption = "*Mean Student Growth Percentile (Mean SGP)") +
-      xlab("ISD Name") +
-      ylab("Percent Change") +
-      theme(legend.position = "top",
-            plot.caption = element_text(hjust = 0)) +
-      coord_flip()
-
-    #  Sci Plot
-    plotty.sci <-
-      ggplot(table.temp.sci,aes(x = reorder(IsdName, delta), y = delta, fill = delta)) +
-      geom_hline(yintercept = 0) +
-      geom_bar(stat = "identity", width = 0.5) +
-      scale_fill_gradient2(low = "red4",
-                           mid = "steelblue3",
-                           high = "green",
-                           midpoint = 0,
-                           space = "Lab",
-                           name = "% Change: Mean SGP*") +
-      labs(title = "Percent Changes in Mean SGP* from 2015/2016 - 2016/2017 ",
-           subtitle = paste0("Science: All Grades, ",testgroup),
-           caption = "*Mean Student Growth Percentile (Mean SGP)") +
-      xlab("ISD Name") +
-      ylab("Percent Change") +
-      theme(legend.position = "top",
-            plot.caption = element_text(hjust = 0)) +
-      coord_flip()
-
+    plot_function_section1()
     # Plotting Plots
     plot(plotty.math)
     plot(plotty.ela)
