@@ -44,79 +44,28 @@ p_load(pkgs, character.only = TRUE)
 
 
 
-##### Import Data #####
+##### Import Data and Data Cleaning #####
+#----------------------------------------
 
 # Variable Key
-key <- fread(file =
-               paste0(dir, repo, "/Data/MI Statewide Student Growth (File Layout Key).csv"))
+key <- fread(file = paste0(dir, repo, "/Data/MI Statewide Student Growth (File Layout Key).csv"))
 
 # 2015-2016 School Year
-year15 <- fread(file =
-                  paste0(dir, repo, "/Data/MI Statewide Student Growth 2015-16.csv"))
+year15 <- fread(file = paste0(dir, repo, "/Data/MI Statewide Student Growth 2015-16.csv"))
 
 # 2016 - 2017 School Year
-year16 <- fread(file =
-                  paste0(dir, repo,  "/Data/MI Statewide Student Growth 2016-17.csv"))
+year16 <- fread(file = paste0(dir, repo,  "/Data/MI Statewide Student Growth 2016-17.csv"))
 
 # All Years Table: 2015-2017
 yearall <- rbind(year15,year16,use.names = T)
 
-
-
-##### Data Cleaning #####
-yearall[SchoolYear=="15 - 16 School Year", SchoolYear:="15.16"]
-yearall[SchoolYear=="16 - 17 School Year", SchoolYear:="16.17"]
-
-# Grade Column
-yearall[Grade%like%"All Grades",Grade:=0] # All = 0
-
-# NAAG Column
-yearall[NumberAboveAverageGrowth=="< 10",NumberAboveAverageGrowth:=9] #NumberAboveAverageGrowth (NAAG): 9 = < 10
-
-# NAVG Column
-yearall[NumberAverageGrowth=="< 10",NumberAverageGrowth:=9] #NumberAverageGrowth (NAVG): 9 = < 10
-
-# NBAG Column
-yearall[NumberBelowAverageGrowth=="< 10",NumberBelowAverageGrowth:=9] #NumberBelowAverageGrowth (NBAG): 9 = < 10
-
-# PAA
-yearall[PercentAboveAverage=="< 10",PercentAboveAverage:=9] #PercentAboveAverage (PAA): 9 = < 10
-yearall[PercentAboveAverage=="< 5",PercentAboveAverage:=5] #PercentAboveAverage (PAA): 5 = < 5
-yearall[PercentAboveAverage=="> 95",PercentAboveAverage:=95] #PercentAboveAverage (PAA): 95 = > 95
-
-#PAVG
-yearall[PercentAverageGrowth=="< 10",PercentAverageGrowth:=9] #PercentAverageGrowth (PAVG): 9 = < 10
-yearall[PercentAverageGrowth=="< 5",PercentAverageGrowth:=5] #PercentAverageGrowth (PAVG): 5 = < 5
-yearall[PercentAverageGrowth=="> 95",PercentAverageGrowth:=95] #PercentAverageGrowth (PAVG): 95 = > 95
-
-#PBA
-yearall[PercentBelowAverage=="< 10",PercentBelowAverage:=9] #PercentBelowAverage (PBA): 9 = < 10
-yearall[PercentBelowAverage=="< 5",PercentBelowAverage:=5] #PercentBelowAverage (PBA): 5 = < 5
-yearall[PercentBelowAverage=="> 95",PercentBelowAverage:=95] #PercentBelowAverage (PBA): 95 = > 95
-
-# Total Included
-yearall[TotalIncluded=="< 10",TotalIncluded:=10] #TotalIncluded: 10 = < 10
-
-# MeanSGP (Student Growth Percentile)
-yearall[MeanSGP=="< 10",MeanSGP:=10] #MeanSGP: 10 = < 10
-
-#### Set columns as numeric ###
-yearall[,':=' (IsdCode=as.numeric(IsdCode),
-               DistrictCode=as.numeric(DistrictCode),
-               BuildingCode=as.numeric(BuildingCode),
-               Grade=as.numeric(Grade),
-               NumberAboveAverageGrowth=as.numeric(NumberAboveAverageGrowth),
-               NumberAverageGrowth=as.numeric(NumberAverageGrowth),
-               NumberBelowAverageGrowth=as.numeric(NumberBelowAverageGrowth),
-               PercentAboveAverage=as.numeric(PercentAboveAverage),
-               PercentAverageGrowth=as.numeric(PercentAverageGrowth),
-               PercentBelowAverage=as.numeric(PercentBelowAverage),
-               TotalIncluded=as.numeric(TotalIncluded),
-               MeanSGP=as.numeric(MeanSGP))]
+# data cleaning
+source(paste0(dir, repo,"/data_cleaning.R"))
 
 
 
-#----------- Section 1 ------------------#
+##### Section 1 #####
+#--------------------
 # Looking for Testing Group Disparities by ISD
 # Year over Year (YoY) changes by MeanSGP
 source(paste0(dir, repo, "/section1_datawork.R"))
@@ -147,15 +96,15 @@ for (isd in 1:(length(isd.msgp.delta[,unique(TestingGroup)])+1)) {
   else{
     message("Plotting subjects for ", testgroup)
     # Math Plot
-    isd.testinggroup_plot(isd.temp.math, testgroup, isd.temp.math[,unique(Subject)])
+    isd_testinggroup_plot(isd.temp.math, testgroup, isd.temp.math[,unique(Subject)])
     # ELA Plot
-    isd.testinggroup_plot(isd.temp.ela, testgroup, isd.temp.ela[,unique(Subject)])
+    isd_testinggroup_plot(isd.temp.ela, testgroup, isd.temp.ela[,unique(Subject)])
     # Science Plot
-    isd.testinggroup_plot(isd.temp.sci, testgroup, isd.temp.sci[,unique(Subject)])
+    isd_testinggroup_plot(isd.temp.sci, testgroup, isd.temp.sci[,unique(Subject)])
   }
 }
 
-#-----------------------------------------------
+
 
 #--- Plotting YoY MeanSGP changes by Grade ---
 # Data for Science is only for Grades 0,11
@@ -174,13 +123,13 @@ for (grd in 1:(length(isd.msgp.grade.delta[,unique(Grade)])+1)) {
   isd.temp.sci <- isd.msgp.grade.delta[Grade==grade & Subject=="Science"]
 
   # if statement to close pdf
-  if(i==length(isd.msgp.delta.grade[,unique(Grade)])+1){
+  if(grd==length(isd.msgp.grade.delta[,unique(Grade)])+1){
     graphics.off()
     message("Done plotting, PDF ready for viewing.")
   }
   # Plots each subject for current grade
   else{
-    message("Plotting subjects for ", grade)
+    message("Plotting subjects for ", grade, " grade")
     # Math Plot
     isd_grade_plot(isd.temp.math, grade, isd.temp.math[,unique(Subject)])
     # ELA Plot
@@ -190,10 +139,10 @@ for (grd in 1:(length(isd.msgp.grade.delta[,unique(Grade)])+1)) {
   }
 }
 
-#--------- End Section 1 ------------#
 
 
-#---------- Section 2 ----------------#
+##### Section 2 #####
+#--------------------
 # Line graph to show overall YoY changes
 # By subjects and all students included; Social Science NA for 16/17 year
 
