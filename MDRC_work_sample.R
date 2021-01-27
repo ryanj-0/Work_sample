@@ -24,9 +24,9 @@ if(getwd()==paste0("C:/Users/",Sys.info()[6],"/Documents/R/MDRC")){
   message(paste0("Directory changed, set to: ", getwd()))
 }
 
-# Set variables and sources needed functions
+# Set variables
 repo <- "/MDRC_sample"
-source(paste0(dir,repo,"/plot_function_section1.R"))
+
 
 #### Loading Needed packages ####
 # Checks for needed package [pacman] and then loads other packages [pkgs]
@@ -48,15 +48,15 @@ p_load(pkgs, character.only = TRUE)
 
 # Variable Key
 key <- fread(file =
-               paste0(dir, "/Data/MI Statewide Student Growth (File Layout Key).csv"))
+               paste0(dir, repo, "/Data/MI Statewide Student Growth (File Layout Key).csv"))
 
 # 2015-2016 School Year
 year15 <- fread(file =
-                  paste0(dir, "/Data/MI Statewide Student Growth 2015-16.csv"))
+                  paste0(dir, repo, "/Data/MI Statewide Student Growth 2015-16.csv"))
 
 # 2016 - 2017 School Year
 year16 <- fread(file =
-                  paste0(dir, "/Data/MI Statewide Student Growth 2016-17.csv"))
+                  paste0(dir, repo,  "/Data/MI Statewide Student Growth 2016-17.csv"))
 
 # All Years Table: 2015-2017
 yearall <- rbind(year15,year16,use.names = T)
@@ -114,70 +114,20 @@ yearall[,':=' (IsdCode=as.numeric(IsdCode),
                TotalIncluded=as.numeric(TotalIncluded),
                MeanSGP=as.numeric(MeanSGP))]
 
-### Use to investigate data while cleaning (un-comment to run; highlight, ctrl+shift+c) ###
-# View(unique(yearall[,1])) # School Year
-# View(unique(yearall[,2])) # IsdCode
-# View(unique(yearall[,3])) # IsdName
-# View(unique(yearall[,4])) # DistrictCode
-# View(unique(yearall[,5])) # DistrictName
-# View(unique(yearall[,6])) # BuildingName
-# View(unique(yearall[,7])) # BuildingCode
-# View(unique(yearall[,8])) # EntityType
-# View(unique(yearall[,9])) # Grade
-# View(unique(yearall[,10])) # Subject
-# View(unique(yearall[,11])) # TestingGroup
-# View(unique(yearall[,12])) # NAAG
-# View(unique(yearall[,13])) # NAG
-# View(unique(yearall[,14])) # NBAG
-# View(unique(yearall[,15])) # PAA
-# View(unique(yearall[,16])) # PAVG
-# View(unique(yearall[,17])) # PBA
-# View(unique(yearall[,18])) # TotalIncluded
-# View(unique(yearall[,19])) # MeanSGP
-
 
 
 #----------- Section 1 ------------------#
 # Looking for Testing Group Disparities by ISD
 # Year over Year (YoY) changes by MeanSGP
+source(paste0(dir, repo, "/section1_datawork.R"))
 
-##### Yoy MeanSGP change by ISD ######
-isd.msgp <- yearall[DistrictCode==0 & Grade==0]
-isd.msgp[,c("DistrictCode",
-            "DistrictName",
-            "BuildingName",
-            "BuildingCode",
-            "Grade",
-            "NumberAboveAverageGrowth",
-            "NumberAverageGrowth",
-            "NumberBelowAverageGrowth",
-            "PercentAboveAverage",
-            "PercentAverageGrowth",
-            "PercentBelowAverage",
-            "TotalIncluded"):=NULL] #drop columns; interested in only MeanSGP by Testing Group
-# Need to split data into two different years to find YoY changes
-isd.msgp.15 <- isd.msgp[SchoolYear=="15.16"] # only 15/16 data
-isd.msgp.16 <- isd.msgp[SchoolYear=="16.17"] # only 16/17 data
 
-# Note: Our data set will be smaller. i.e. missing records across the years
-isd.msgp.delta <- merge(isd.msgp.15,
-                        isd.msgp.16,
-                        by = c("IsdCode",
-                               "IsdName",
-                               "EntityType",
-                               "Subject",
-                               "TestingGroup"),
-                        suffixes = c("old","new"))
-isd.msgp.delta[,delta:=MeanSGPnew-MeanSGPold]
-isd.msgp.delta[,c("SchoolYearold","SchoolYearnew","MeanSGPold","MeanSGPnew"):=NULL] # drop old columns
-isd.msgp <- isd.msgp[order(IsdCode,TestingGroup,Subject)] # reorder table for plotting
-
-#--- Plotting Section ---
-# for loop to plot YoY change in MeanSGP by testinggroup and subject
+#--- Plotting Yoy MeanSGP change by ISD ---
+source(paste0(dir, repo,"/isd_testinggroup_plot.R"))
 # open pdf to populate with graphs
+pdf(file = paste0(dir, repo, "/Plots/YoY Percent Changes in MeanSGP by ISD and Testing Group.pdf"), width = 11, height = 8.5)
 
-pdf(file = paste0(dir, repo, "/YoY Percent Changes in MeanSGP by ISD and Testing Group.pdf"), width = 11, height = 8.5)
-
+# for loop to plot YoY change in MeanSGP by testinggroup and subject
 for (isd in 1:(length(isd.msgp.delta[,unique(TestingGroup)])+1)) {
 
   # sets TestingGroup for iteration
@@ -188,7 +138,7 @@ for (isd in 1:(length(isd.msgp.delta[,unique(TestingGroup)])+1)) {
   isd.temp.ela <- isd.msgp.delta[TestingGroup==testgroup & Subject=="English Language Arts"]
   isd.temp.sci <- isd.msgp.delta[TestingGroup==testgroup & Subject=="Science"]
 
-  # Once if statement finish, closes pdf
+  # if statement to stop look and close graphics
   if(isd==length(isd.msgp.delta[,unique(TestingGroup)])+1){
     graphics.off()
     message("Done plotting, PDF ready for viewing.")
@@ -197,138 +147,50 @@ for (isd in 1:(length(isd.msgp.delta[,unique(TestingGroup)])+1)) {
   else{
     message("Plotting subjects for ", testgroup)
     # Math Plot
-    section1_plot(isd.temp.math, testgroup, isd.temp.math[,unique(Subject)])
+    isd.testinggroup_plot(isd.temp.math, testgroup, isd.temp.math[,unique(Subject)])
     # ELA Plot
-    section1_plot(isd.temp.ela, testgroup, isd.temp.ela[,unique(Subject)])
+    isd.testinggroup_plot(isd.temp.ela, testgroup, isd.temp.ela[,unique(Subject)])
     # Science Plot
-    section1_plot(isd.temp.sci, testgroup, isd.temp.sci[,unique(Subject)])
+    isd.testinggroup_plot(isd.temp.sci, testgroup, isd.temp.sci[,unique(Subject)])
   }
 }
 
+#-----------------------------------------------
 
-
-##### MeanSGP by Grade #####
+#--- Plotting YoY MeanSGP changes by Grade ---
 # Data for Science is only for Grades 0,11
+source(paste0(dir, repo,"/isd_grade_plot.R"))
+# open pdf to populate with graphs
+pdf(file = paste0(dir, repo, "/Plots/YoY Percent Changes in MeanSGP by ISD and Grade.pdf"), width = 11, height = 8.5)
 
-# Yoy MeanSGP change by ISD (All ISD included in DistrictCode=0), All Students (Testing Group)
-isd.all.district.msgp.grade <- yearall[DistrictCode==0 & TestingGroup=="All Students"]
-isd.all.district.msgp.grade <- isd.all.district.msgp.grade[order(IsdCode,Grade,Subject)] # reorder table
-isd.all.district.msgp.grade[,c("DistrictCode",
-                         "DistrictName",
-                         "BuildingName",
-                         "BuildingCode",
-                         "TestingGroup",
-                         "NumberAboveAverageGrowth",
-                         "NumberAverageGrowth",
-                         "NumberBelowAverageGrowth",
-                         "PercentAboveAverage",
-                         "PercentAverageGrowth",
-                         "PercentBelowAverage",
-                         "TotalIncluded"):=NULL] #drop columns
-isd.all.district.msgp.15.grade <- isd.all.district.msgp.grade[SchoolYear=="15/16"]
-isd.all.district.msgp.16.grade <- isd.all.district.msgp.grade[SchoolYear=="16/17"]
+for (grd in 1:(length(isd.msgp.grade.delta[,unique(Grade)])+1)) {
 
-# Note: Our data set is smaller. i.e. missing records across the years
-isd.all.district.msgp.delta.grade <- merge(isd.all.district.msgp.15.grade,
-                                     isd.all.district.msgp.16.grade,
-                                     by = c("IsdCode",
-                                            "IsdName",
-                                            "EntityType",
-                                            "Subject",
-                                            "Grade"),
-                                     suffixes = c("old","new"))
-isd.all.district.msgp.delta.grade[,delta:=MeanSGPnew-MeanSGPold]
-isd.all.district.msgp.delta.grade[,c("SchoolYearold","SchoolYearnew","MeanSGPold","MeanSGPnew"):=NULL] # drop old columns
+  # if statement to stop look and c
+  grade <- isd.msgp.grade.delta[,unique(Grade)][grd]
 
-
-#--- Plotting Section ---#
-
-# open pdf to be able to populate with graphs
-pdf(file = paste0("C:/Users/johns/Desktop/Data_Analyst_Test/ISD Percent Changes in MeanSGP by Grade.pdf"), width = 11, height = 8.5)
-
-for (i in 1:(length(isd.all.district.msgp.delta.grade[,unique(Grade)])+1)) {
-
-  grade <- isd.all.district.msgp.delta.grade[,unique(Grade)][i]
-  table.temp.math <- isd.all.district.msgp.delta.grade[Grade==grade & Subject=="Mathematics"]
-  table.temp.ela <- isd.all.district.msgp.delta.grade[Grade==grade & Subject=="English Language Arts"]
-  table.temp.sci <- isd.all.district.msgp.delta.grade[Grade==grade & Subject=="Science"]
+  # Dynamic tables for plotting
+  isd.temp.math <- isd.msgp.grade.delta[Grade==grade & Subject=="Mathematics"]
+  isd.temp.ela <- isd.msgp.grade.delta[Grade==grade & Subject=="English Language Arts"]
+  isd.temp.sci <- isd.msgp.grade.delta[Grade==grade & Subject=="Science"]
 
   # if statement to close pdf
-  if(i==length(isd.all.district.msgp.delta.grade[,unique(Grade)])+1){
-    dev.off()
+  if(i==length(isd.msgp.delta.grade[,unique(Grade)])+1){
+    graphics.off()
+    message("Done plotting, PDF ready for viewing.")
   }
+  # Plots each subject for current grade
   else{
-    print(grade)# Prints in console what grade is being used when making graphs
-
+    message("Plotting subjects for ", grade)
     # Math Plot
-    plotty.math <-
-      ggplot(table.temp.math,aes(x = reorder(IsdName, delta), y = delta, fill = delta)) +
-      geom_hline(yintercept = 0) +
-      geom_bar(stat = "identity", width = 0.5) +
-      scale_fill_gradient2(low = "red4",
-                           mid = "steelblue4",
-                           high = "green",
-                           midpoint = 0,
-                           space = "Lab",
-                           name = "% Change: Mean SGP*") +
-      labs(title = "Percent Changes in Mean SGP* from 2015/2016 - 2016/2017 ",
-           subtitle = paste0("Mathematics: All Students, ",grade, "th Grade"),
-           caption = "*Mean Student Growth Percentile (Mean SGP); Grade 0 = All Students; No data for Grades: 4-8 in Science") +
-      xlab("ISD Name") +
-      ylab("Percent Change") +
-      theme(legend.position = "top",
-            plot.caption = element_text(hjust = 0)) +
-      coord_flip()
-
+    isd_grade_plot(isd.temp.math, grade, isd.temp.math[,unique(Subject)])
     # ELA Plot
-    plotty.ela <-
-      ggplot(table.temp.ela,aes(x = reorder(IsdName, delta), y = delta, fill = delta)) +
-      geom_hline(yintercept = 0) +
-      geom_bar(stat = "identity", width = 0.5) +
-      scale_fill_gradient2(low = "red4",
-                           mid = "steelblue4",
-                           high = "green",
-                           midpoint = 0,
-                           space = "Lab",
-                           name = "% Change: Mean SGP*") +
-      labs(title = "Percent Changes in Mean SGP* from 2015/2016 - 2016/2017 ",
-           subtitle = paste0("English Language Arts: All Students, ",grade, "th Grade"),
-           caption = "*Mean Student Growth Percentile (Mean SGP); Grade 0 = All Students; No data for Grades: 4-8 in Science") +
-      xlab("ISD Name") +
-      ylab("Percent Change") +
-      theme(legend.position = "top",
-            plot.caption = element_text(hjust = 0)) +
-      coord_flip()
-
-    #  Sci Plot
-    plotty.sci <-
-      ggplot(table.temp.sci,aes(x = reorder(IsdName, delta), y = delta, fill = delta)) +
-      geom_hline(yintercept = 0) +
-      geom_bar(stat = "identity", width = 0.5) +
-      scale_fill_gradient2(low = "red4",
-                           mid = "steelblue4",
-                           high = "green",
-                           midpoint = 0,
-                           space = "Lab",
-                           name = "% Change: Mean SGP*") +
-      labs(title = "Percent Changes in Mean SGP* from 2015/2016 - 2016/2017 ",
-           subtitle = paste0("Science: All Students, ",grade, "th Grade"),
-           caption = "*Mean Student Growth Percentile (Mean SGP); Grade 0 = All Students; No data for Grades: 4-8 in Science") +
-      xlab("ISD Name") +
-      ylab("Percent Change") +
-      theme(legend.position = "top",
-            plot.caption = element_text(hjust = 0)) +
-      coord_flip()
-
-    # Plotting Plots
-    plot(plotty.math)
-    plot(plotty.ela)
-    plot(plotty.sci)
+    isd_grade_plot(isd.temp.ela, grade, isd.temp.ela[,unique(Subject)])
+    # Science Plot
+    isd_grade_plot(isd.temp.sci, grade, isd.temp.sci[,unique(Subject)])
   }
 }
-#---- End ----
 
-#--------- End Section ------------#
+#--------- End Section 1 ------------#
 
 
 #---------- Section 2 ----------------#
@@ -376,35 +238,35 @@ hillsdale.overall <-
 
 
 ##### Top/Bottom 5 Changes in MeanSGP by ISD (All Students, All Grades) #####
-isd.all.district.msgp.delta.topbottom <- isd.all.district.msgp.delta[TestingGroup=="All Students"] # Get top/bottom 5 ISD, and state (All Students)
-isd.all.district.msgp.delta.topbottom <- isd.all.district.msgp.delta.topbottom[order(-delta)] #order table by percent change largest to smallest
+isd.msgp.delta.topbottom <- isd.msgp.delta[TestingGroup=="All Students"] # Get top/bottom 5 ISD, and state (All Students)
+isd.msgp.delta.topbottom <- isd.msgp.delta.topbottom[order(-delta)] #order table by percent change largest to smallest
 
 
-isd.all.district.msgp.top5.math <- head(isd.all.district.msgp.delta.topbottom[Subject=="Mathematics"],5) # return top 5 delta
-isd.all.district.msgp.top5.ela <- head(isd.all.district.msgp.delta.topbottom[Subject=="English Language Arts"],5) # return top 5 delta
-isd.all.district.msgp.top5.sci <- head(isd.all.district.msgp.delta.topbottom[Subject=="Science"],5) # return top 5 delta
-isd.all.district.msgp.bottom5.math <- tail(isd.all.district.msgp.delta.topbottom[Subject=="Mathematics"],5) # return bottom 5 delta
-isd.all.district.msgp.bottom5.ela <- tail(isd.all.district.msgp.delta.topbottom[Subject=="English Language Arts"],5) # return bottom 5 delta
-isd.all.district.msgp.bottom5.sci <- tail(isd.all.district.msgp.delta.topbottom[Subject=="Science"],5) # return bottom 5 delta
+isd.msgp.top5.math <- head(isd.msgp.delta.topbottom[Subject=="Mathematics"],5) # return top 5 delta
+isd.msgp.top5.ela <- head(isd.msgp.delta.topbottom[Subject=="English Language Arts"],5) # return top 5 delta
+isd.msgp.top5.sci <- head(isd.msgp.delta.topbottom[Subject=="Science"],5) # return top 5 delta
+isd.msgp.bottom5.math <- tail(isd.msgp.delta.topbottom[Subject=="Mathematics"],5) # return bottom 5 delta
+isd.msgp.bottom5.ela <- tail(isd.msgp.delta.topbottom[Subject=="English Language Arts"],5) # return bottom 5 delta
+isd.msgp.bottom5.sci <- tail(isd.msgp.delta.topbottom[Subject=="Science"],5) # return bottom 5 delta
 
-isd.all.district.msgp.compare.math <- rbind(isd.all.district.msgp.top5.math,isd.all.district.msgp.bottom5.math) # Combine top & bottom 5 isds; math
-isd.all.district.msgp.compare.math <- rbind(isd.all.district.msgp.compare.math,
-                                            isd.all.district.msgp.delta.topbottom[IsdCode==0 & Subject=="Mathematics"]) # add statewide level
+isd.msgp.compare.math <- rbind(isd.msgp.top5.math,isd.msgp.bottom5.math) # Combine top & bottom 5 isds; math
+isd.msgp.compare.math <- rbind(isd.msgp.compare.math,
+                                            isd.msgp.delta.topbottom[IsdCode==0 & Subject=="Mathematics"]) # add statewide level
 
-isd.all.district.msgp.compare.ela <- rbind(isd.all.district.msgp.top5.ela,isd.all.district.msgp.bottom5.ela) # combine top & bottom isds; ELA
-isd.all.district.msgp.compare.ela <- rbind(isd.all.district.msgp.compare.ela,
-                                       isd.all.district.msgp.delta.topbottom[IsdCode==0 & Subject=="English Language Arts"]) # add statewide level
+isd.msgp.compare.ela <- rbind(isd.msgp.top5.ela,isd.msgp.bottom5.ela) # combine top & bottom isds; ELA
+isd.msgp.compare.ela <- rbind(isd.msgp.compare.ela,
+                                       isd.msgp.delta.topbottom[IsdCode==0 & Subject=="English Language Arts"]) # add statewide level
 
-isd.all.district.msgp.compare.sci <- rbind(isd.all.district.msgp.top5.sci,isd.all.district.msgp.bottom5.sci) # combine top & bottom isds; science
-isd.all.district.msgp.compare.sci <- rbind(isd.all.district.msgp.compare.sci,
-                                           isd.all.district.msgp.delta.topbottom[IsdCode==0 & Subject=="Science"]) # add statewide level
+isd.msgp.compare.sci <- rbind(isd.msgp.top5.sci,isd.msgp.bottom5.sci) # combine top & bottom isds; science
+isd.msgp.compare.sci <- rbind(isd.msgp.compare.sci,
+                                           isd.msgp.delta.topbottom[IsdCode==0 & Subject=="Science"]) # add statewide level
 
 
 #--- Math Compare Plot ---#
 
 compare.plot.math <-
 
-  isd.all.district.msgp.compare.math %>%
+  isd.msgp.compare.math %>%
   ggplot(aes(x = reorder(IsdName, delta), y = delta, fill = delta)) +
   geom_hline(yintercept = 0) +
   geom_bar(stat = "identity", width = 0.5) +
@@ -427,7 +289,7 @@ compare.plot.math <-
 
 compare.plot.ela <-
 
-  isd.all.district.msgp.compare.ela %>%
+  isd.msgp.compare.ela %>%
   ggplot(aes(x = reorder(IsdName, delta), y = delta, fill = delta)) +
   geom_hline(yintercept = 0) +
   geom_bar(stat = "identity", width = 0.5) +
@@ -451,7 +313,7 @@ compare.plot.ela <-
 
 compare.plot.sci <-
 
-  isd.all.district.msgp.compare.sci %>%
+  isd.msgp.compare.sci %>%
   ggplot(aes(x = reorder(IsdName, delta), y = delta, fill = delta)) +
   geom_hline(yintercept = 0) +
   geom_bar(stat = "identity", width = 0.5) +
@@ -1113,9 +975,9 @@ clinton.county.resa %>%
 ##### PAA by Testing Group #####
 
 # Yoy PAA change by ISD (all buildings inherent in IsdCode=0), All Students (Grade)
-isd.all.district.paa <- yearall[DistrictCode==0 & Grade==0]
-isd.all.district.paa <- isd.all.district.paa[order(IsdCode,TestingGroup,Subject)]
-isd.all.district.paa[,c("DistrictCode",
+isd.paa <- yearall[DistrictCode==0 & Grade==0]
+isd.paa <- isd.paa[order(IsdCode,TestingGroup,Subject)]
+isd.paa[,c("DistrictCode",
                         "DistrictName",
                         "BuildingName",
                         "BuildingCode",
@@ -1127,20 +989,20 @@ isd.all.district.paa[,c("DistrictCode",
                         "PercentBelowAverage",
                         "TotalIncluded",
                         "MeanSGP"):=NULL] #drop columns
-isd.all.district.paa.15 <- isd.all.district.paa[SchoolYear=="15/16"]
-isd.all.district.paa.16 <- isd.all.district.paa[SchoolYear=="16/17"]
+isd.paa.15 <- isd.paa[SchoolYear=="15/16"]
+isd.paa.16 <- isd.paa[SchoolYear=="16/17"]
 
 # Note: Our data set is smaller. i.e. missing records across the years
-isd.all.district.paa.delta <- merge(isd.all.district.paa.15,
-                                    isd.all.district.paa.16,
+isd.paa.delta <- merge(isd.paa.15,
+                                    isd.paa.16,
                                     by = c("IsdCode",
                                            "IsdName",
                                            "EntityType",
                                            "Subject",
                                            "TestingGroup"),
                                     suffixes = c("old","new"))
-isd.all.district.paa.delta[,delta:=PercentAboveAveragenew-PercentAboveAverageold]
-isd.all.district.paa.delta[,c("SchoolYearold","SchoolYearnew","PercentAboveAverageold","PercentAboveAveragenew"):=NULL]
+isd.paa.delta[,delta:=PercentAboveAveragenew-PercentAboveAverageold]
+isd.paa.delta[,c("SchoolYearold","SchoolYearnew","PercentAboveAverageold","PercentAboveAveragenew"):=NULL]
 
 
 #--- Plotting Section ---#
@@ -1148,10 +1010,10 @@ isd.all.district.paa.delta[,c("SchoolYearold","SchoolYearnew","PercentAboveAvera
 # All Subjects
 pdf(file = paste0("C:/Users/johns/Desktop/Data_Analyst_Test/ISD Percent Changes in PAA by Testing Group.pdf"), width = 11, height = 8.5)
 for (i in 1:17) {
-  testgroup <- isd.all.district.paa.delta[,unique(TestingGroup)][i]
-  table.temp.math <- isd.all.district.paa.delta[TestingGroup==testgroup & Subject=="Mathematics"]
-  table.temp.ela <- isd.all.district.paa.delta[TestingGroup==testgroup & Subject=="English Language Arts"]
-  table.temp.sci <- isd.all.district.paa.delta[TestingGroup==testgroup & Subject=="Science"]
+  testgroup <- isd.paa.delta[,unique(TestingGroup)][i]
+  table.temp.math <- isd.paa.delta[TestingGroup==testgroup & Subject=="Mathematics"]
+  table.temp.ela <- isd.paa.delta[TestingGroup==testgroup & Subject=="English Language Arts"]
+  table.temp.sci <- isd.paa.delta[TestingGroup==testgroup & Subject=="Science"]
   print(testgroup)
 
   # Math Plot
@@ -1225,9 +1087,9 @@ dev.off()
 ##### PAG by Testing Group #####
 
 # Yoy PAG change by ISD (all buildings inherent in IsdCode=0), All Students (Grade)
-isd.all.district.pag <- yearall[DistrictCode==0 & Grade==0]
-isd.all.district.pag <- isd.all.district.pag[order(IsdCode,TestingGroup,Subject)]
-isd.all.district.pag[,c("DistrictCode",
+isd.pag <- yearall[DistrictCode==0 & Grade==0]
+isd.pag <- isd.pag[order(IsdCode,TestingGroup,Subject)]
+isd.pag[,c("DistrictCode",
                         "DistrictName",
                         "BuildingName",
                         "BuildingCode",
@@ -1239,20 +1101,20 @@ isd.all.district.pag[,c("DistrictCode",
                         "PercentBelowAverage",
                         "TotalIncluded",
                         "MeanSGP"):=NULL] #drop columns
-isd.all.district.pag.15 <- isd.all.district.pag[SchoolYear=="15/16"]
-isd.all.district.pag.16 <- isd.all.district.pag[SchoolYear=="16/17"]
+isd.pag.15 <- isd.pag[SchoolYear=="15/16"]
+isd.pag.16 <- isd.pag[SchoolYear=="16/17"]
 
 # Note: Our data set is smaller. i.e. missing records across the years
-isd.all.district.pag.delta <- merge(isd.all.district.pag.15,
-                                    isd.all.district.pag.16,
+isd.pag.delta <- merge(isd.pag.15,
+                                    isd.pag.16,
                                     by = c("IsdCode",
                                            "IsdName",
                                            "EntityType",
                                            "Subject",
                                            "TestingGroup"),
                                     suffixes = c("old","new"))
-isd.all.district.pag.delta[,delta:=PercentAverageGrowthnew-PercentAverageGrowthold]
-isd.all.district.pag.delta[,c("SchoolYearold","SchoolYearnew","PercentAverageGrowthold","PercentAverageGrowthnew"):=NULL]
+isd.pag.delta[,delta:=PercentAverageGrowthnew-PercentAverageGrowthold]
+isd.pag.delta[,c("SchoolYearold","SchoolYearnew","PercentAverageGrowthold","PercentAverageGrowthnew"):=NULL]
 
 
 #--- Plotting Section ---#
@@ -1260,10 +1122,10 @@ isd.all.district.pag.delta[,c("SchoolYearold","SchoolYearnew","PercentAverageGro
 # All Subjects
 pdf(file = paste0("C:/Users/johns/Desktop/Data_Analyst_Test/ISD Percent Changes in PAG by Testing Group.pdf"), width = 11, height = 8.5)
 for (i in 1:17) {
-  testgroup <- isd.all.district.pag.delta[,unique(TestingGroup)][i]
-  table.temp.math <- isd.all.district.pag.delta[TestingGroup==testgroup & Subject=="Mathematics"]
-  table.temp.ela <- isd.all.district.pag.delta[TestingGroup==testgroup & Subject=="English Language Arts"]
-  table.temp.sci <- isd.all.district.pag.delta[TestingGroup==testgroup & Subject=="Science"]
+  testgroup <- isd.pag.delta[,unique(TestingGroup)][i]
+  table.temp.math <- isd.pag.delta[TestingGroup==testgroup & Subject=="Mathematics"]
+  table.temp.ela <- isd.pag.delta[TestingGroup==testgroup & Subject=="English Language Arts"]
+  table.temp.sci <- isd.pag.delta[TestingGroup==testgroup & Subject=="Science"]
   print(testgroup)
 
   # Math Plot
@@ -1337,9 +1199,9 @@ dev.off()
 ##### PBA by Testing Group ####
 
 # Yoy pba change by ISD (all buildings inherent in IsdCode=0), All Students (Grade)
-isd.all.district.pba <- yearall[DistrictCode==0 & Grade==0]
-isd.all.district.pba <- isd.all.district.pba[order(IsdCode,TestingGroup,Subject)]
-isd.all.district.pba[,c("DistrictCode",
+isd.pba <- yearall[DistrictCode==0 & Grade==0]
+isd.pba <- isd.pba[order(IsdCode,TestingGroup,Subject)]
+isd.pba[,c("DistrictCode",
                         "DistrictName",
                         "BuildingName",
                         "BuildingCode",
@@ -1351,20 +1213,20 @@ isd.all.district.pba[,c("DistrictCode",
                         "PercentAverageGrowth",
                         "TotalIncluded",
                         "MeanSGP"):=NULL] #drop columns
-isd.all.district.pba.15 <- isd.all.district.pba[SchoolYear=="15/16"]
-isd.all.district.pba.16 <- isd.all.district.pba[SchoolYear=="16/17"]
+isd.pba.15 <- isd.pba[SchoolYear=="15/16"]
+isd.pba.16 <- isd.pba[SchoolYear=="16/17"]
 
 # Note: Our data set is smaller. i.e. missing records across the years
-isd.all.district.pba.delta <- merge(isd.all.district.pba.15,
-                                    isd.all.district.pba.16,
+isd.pba.delta <- merge(isd.pba.15,
+                                    isd.pba.16,
                                     by = c("IsdCode",
                                            "IsdName",
                                            "EntityType",
                                            "Subject",
                                            "TestingGroup"),
                                     suffixes = c("old","new"))
-isd.all.district.pba.delta[,delta:=PercentBelowAveragenew-PercentBelowAverageold]
-isd.all.district.pba.delta[,c("SchoolYearold","SchoolYearnew","PercentBelowAverageold","PercentBelowAveragenew"):=NULL]
+isd.pba.delta[,delta:=PercentBelowAveragenew-PercentBelowAverageold]
+isd.pba.delta[,c("SchoolYearold","SchoolYearnew","PercentBelowAverageold","PercentBelowAveragenew"):=NULL]
 
 
 #--- Plotting Section ---#
@@ -1372,10 +1234,10 @@ isd.all.district.pba.delta[,c("SchoolYearold","SchoolYearnew","PercentBelowAvera
 # All Subjects
 pdf(file = paste0("C:/Users/johns/Desktop/Data_Analyst_Test/ISD Percent Changes in PBA by Testing Group.pdf"), width = 11, height = 8.5)
 for (i in 1:17) {
-  testgroup <- isd.all.district.pba.delta[,unique(TestingGroup)][i]
-  table.temp.math <- isd.all.district.pba.delta[TestingGroup==testgroup & Subject=="Mathematics"]
-  table.temp.ela <- isd.all.district.pba.delta[TestingGroup==testgroup & Subject=="English Language Arts"]
-  table.temp.sci <- isd.all.district.pba.delta[TestingGroup==testgroup & Subject=="Science"]
+  testgroup <- isd.pba.delta[,unique(TestingGroup)][i]
+  table.temp.math <- isd.pba.delta[TestingGroup==testgroup & Subject=="Mathematics"]
+  table.temp.ela <- isd.pba.delta[TestingGroup==testgroup & Subject=="English Language Arts"]
+  table.temp.sci <- isd.pba.delta[TestingGroup==testgroup & Subject=="Science"]
   print(testgroup)
 
   # Math Plot
@@ -1450,9 +1312,9 @@ dev.off()
 ##### PAA by Grade #####
 
 # Yoy PAA change by ISD (all buildings inherent in IsdCode=0), All Students (Testing Group)
-isd.all.district.paa.grade <- yearall[DistrictCode==0 & TestingGroup=="All Students"]
-isd.all.district.paa.grade <- isd.all.district.paa.grade[order(IsdCode,Grade,Subject)]
-isd.all.district.paa.grade[,c("DistrictCode",
+isd.paa.grade <- yearall[DistrictCode==0 & TestingGroup=="All Students"]
+isd.paa.grade <- isd.paa.grade[order(IsdCode,Grade,Subject)]
+isd.paa.grade[,c("DistrictCode",
                               "DistrictName",
                               "BuildingName",
                               "BuildingCode",
@@ -1464,20 +1326,20 @@ isd.all.district.paa.grade[,c("DistrictCode",
                               "PercentBelowAverage",
                               "TotalIncluded",
                               "MeanSGP"):=NULL] #drop columns
-isd.all.district.paa.15.grade <- isd.all.district.paa.grade[SchoolYear=="15/16"]
-isd.all.district.paa.16.grade <- isd.all.district.paa.grade[SchoolYear=="16/17"]
+isd.paa.15.grade <- isd.paa.grade[SchoolYear=="15/16"]
+isd.paa.16.grade <- isd.paa.grade[SchoolYear=="16/17"]
 
 # Note: Our data set is smaller. i.e. missing records across the years
-isd.all.district.paa.delta.grade <- merge(isd.all.district.paa.15.grade,
-                                          isd.all.district.paa.16.grade,
+isd.paa.delta.grade <- merge(isd.paa.15.grade,
+                                          isd.paa.16.grade,
                                           by = c("IsdCode",
                                                  "IsdName",
                                                  "EntityType",
                                                  "Subject",
                                                  "Grade"),
                                           suffixes = c("old","new"))
-isd.all.district.paa.delta.grade[,delta:=PercentAboveAveragenew-PercentAboveAverageold]
-isd.all.district.paa.delta.grade[,c("SchoolYearold","SchoolYearnew","PercentAboveAverageold","PercentAboveAveragenew"):=NULL]
+isd.paa.delta.grade[,delta:=PercentAboveAveragenew-PercentAboveAverageold]
+isd.paa.delta.grade[,c("SchoolYearold","SchoolYearnew","PercentAboveAverageold","PercentAboveAveragenew"):=NULL]
 
 
 #--- Plotting Section ---#
@@ -1485,10 +1347,10 @@ isd.all.district.paa.delta.grade[,c("SchoolYearold","SchoolYearnew","PercentAbov
 # All Subjects
 pdf(file = paste0("C:/Users/johns/Desktop/Data_Analyst_Test/ISD Percent Changes in PAA by Grade.pdf"), width = 11, height = 8.5)
 for (i in 1:7) {
-  grade <- isd.all.district.paa.delta.grade[,unique(Grade)][i]
-  table.temp.math <- isd.all.district.paa.delta.grade[Grade==grade & Subject=="Mathematics"]
-  table.temp.ela <- isd.all.district.paa.delta.grade[Grade==grade & Subject=="English Language Arts"]
-  table.temp.sci <- isd.all.district.paa.delta.grade[Grade==grade & Subject=="Science"]
+  grade <- isd.paa.delta.grade[,unique(Grade)][i]
+  table.temp.math <- isd.paa.delta.grade[Grade==grade & Subject=="Mathematics"]
+  table.temp.ela <- isd.paa.delta.grade[Grade==grade & Subject=="English Language Arts"]
+  table.temp.sci <- isd.paa.delta.grade[Grade==grade & Subject=="Science"]
   print(grade)
 
   # Math Plot
@@ -1562,9 +1424,9 @@ dev.off()
 ##### PAG by Grade#####
 
 # Yoy PAG change by ISD (all buildings inherent in IsdCode=0), All Students (Testing Groups)
-isd.all.district.pag.grade <- yearall[DistrictCode==0 & TestingGroup=="All Students"]
-isd.all.district.pag.grade <- isd.all.district.pag.grade[order(IsdCode,Grade,Subject)]
-isd.all.district.pag.grade[,c("DistrictCode",
+isd.pag.grade <- yearall[DistrictCode==0 & TestingGroup=="All Students"]
+isd.pag.grade <- isd.pag.grade[order(IsdCode,Grade,Subject)]
+isd.pag.grade[,c("DistrictCode",
                               "DistrictName",
                               "BuildingName",
                               "BuildingCode",
@@ -1576,20 +1438,20 @@ isd.all.district.pag.grade[,c("DistrictCode",
                               "PercentBelowAverage",
                               "TotalIncluded",
                               "MeanSGP"):=NULL] #drop columns
-isd.all.district.pag.15.grade <- isd.all.district.pag.grade[SchoolYear=="15/16"]
-isd.all.district.pag.16.grade <- isd.all.district.pag.grade[SchoolYear=="16/17"]
+isd.pag.15.grade <- isd.pag.grade[SchoolYear=="15/16"]
+isd.pag.16.grade <- isd.pag.grade[SchoolYear=="16/17"]
 
 # Note: Our data set is smaller. i.e. missing records across the years
-isd.all.district.pag.delta.grade <- merge(isd.all.district.pag.15.grade,
-                                          isd.all.district.pag.16.grade,
+isd.pag.delta.grade <- merge(isd.pag.15.grade,
+                                          isd.pag.16.grade,
                                           by = c("IsdCode",
                                                  "IsdName",
                                                  "EntityType",
                                                  "Subject",
                                                  "Grade"),
                                           suffixes = c("old","new"))
-isd.all.district.pag.delta.grade[,delta:=PercentAverageGrowthnew-PercentAverageGrowthold]
-isd.all.district.pag.delta.grade[,c("SchoolYearold","SchoolYearnew","PercentAverageGrowthold","PercentAverageGrowthnew"):=NULL]
+isd.pag.delta.grade[,delta:=PercentAverageGrowthnew-PercentAverageGrowthold]
+isd.pag.delta.grade[,c("SchoolYearold","SchoolYearnew","PercentAverageGrowthold","PercentAverageGrowthnew"):=NULL]
 
 
 #--- Plotting Section ---#
@@ -1597,10 +1459,10 @@ isd.all.district.pag.delta.grade[,c("SchoolYearold","SchoolYearnew","PercentAver
 # All Subjects
 pdf(file = paste0("C:/Users/johns/Desktop/Data_Analyst_Test/ISD Percent Changes in PAG by Grade.pdf"), width = 11, height = 8.5)
 for (i in 1:7) {
-  grade <- isd.all.district.pag.delta.grade[,unique(Grade)][i]
-  table.temp.math <- isd.all.district.pag.delta.grade[Grade==grade & Subject=="Mathematics"]
-  table.temp.ela <- isd.all.district.pag.delta.grade[Grade==grade & Subject=="English Language Arts"]
-  table.temp.sci <- isd.all.district.pag.delta.grade[Grade==grade & Subject=="Science"]
+  grade <- isd.pag.delta.grade[,unique(Grade)][i]
+  table.temp.math <- isd.pag.delta.grade[Grade==grade & Subject=="Mathematics"]
+  table.temp.ela <- isd.pag.delta.grade[Grade==grade & Subject=="English Language Arts"]
+  table.temp.sci <- isd.pag.delta.grade[Grade==grade & Subject=="Science"]
   print(grade)
 
   # Math Plot
@@ -1674,9 +1536,9 @@ dev.off()
 ##### PBA by Testing Group ####
 
 # Yoy pba change by ISD (all buildings inherent in IsdCode=0), All Students (Testing Group)
-isd.all.district.pba.grade <- yearall[DistrictCode==0 & TestingGroup=="All Students"]
-isd.all.district.pba.grade <- isd.all.district.pba.grade[order(IsdCode,Grade,Subject)]
-isd.all.district.pba.grade[,c("DistrictCode",
+isd.pba.grade <- yearall[DistrictCode==0 & TestingGroup=="All Students"]
+isd.pba.grade <- isd.pba.grade[order(IsdCode,Grade,Subject)]
+isd.pba.grade[,c("DistrictCode",
                               "DistrictName",
                               "BuildingName",
                               "BuildingCode",
@@ -1688,20 +1550,20 @@ isd.all.district.pba.grade[,c("DistrictCode",
                               "PercentAverageGrowth",
                               "TotalIncluded",
                               "MeanSGP"):=NULL] #drop columns
-isd.all.district.pba.15.grade <- isd.all.district.pba.grade[SchoolYear=="15/16"]
-isd.all.district.pba.16.grade <- isd.all.district.pba.grade[SchoolYear=="16/17"]
+isd.pba.15.grade <- isd.pba.grade[SchoolYear=="15/16"]
+isd.pba.16.grade <- isd.pba.grade[SchoolYear=="16/17"]
 
 # Note: Our data set is smaller. i.e. missing records across the years
-isd.all.district.pba.delta.grade <- merge(isd.all.district.pba.15.grade,
-                                          isd.all.district.pba.16.grade,
+isd.pba.delta.grade <- merge(isd.pba.15.grade,
+                                          isd.pba.16.grade,
                                           by = c("IsdCode",
                                                  "IsdName",
                                                  "EntityType",
                                                  "Subject",
                                                  "Grade"),
                                           suffixes = c("old","new"))
-isd.all.district.pba.delta.grade[,delta:=PercentBelowAveragenew-PercentBelowAverageold]
-isd.all.district.pba.delta.grade[,c("SchoolYearold","SchoolYearnew","PercentBelowAverageold","PercentBelowAveragenew"):=NULL]
+isd.pba.delta.grade[,delta:=PercentBelowAveragenew-PercentBelowAverageold]
+isd.pba.delta.grade[,c("SchoolYearold","SchoolYearnew","PercentBelowAverageold","PercentBelowAveragenew"):=NULL]
 
 
 #--- Plotting Section ---#
@@ -1709,10 +1571,10 @@ isd.all.district.pba.delta.grade[,c("SchoolYearold","SchoolYearnew","PercentBelo
 # All Subjects
 pdf(file = paste0("C:/Users/johns/Desktop/Data_Analyst_Test/ISD Percent Changes in PBA by Grade.pdf"), width = 11, height = 8.5)
 for (i in 1:7) {
-  grade <- isd.all.district.pba.delta.grade[,unique(Grade)][i]
-  table.temp.math <- isd.all.district.pba.delta.grade[Grade==grade & Subject=="Mathematics"]
-  table.temp.ela <- isd.all.district.pba.delta.grade[Grade==grade & Subject=="English Language Arts"]
-  table.temp.sci <- isd.all.district.pba.delta.grade[Grade==grade & Subject=="Science"]
+  grade <- isd.pba.delta.grade[,unique(Grade)][i]
+  table.temp.math <- isd.pba.delta.grade[Grade==grade & Subject=="Mathematics"]
+  table.temp.ela <- isd.pba.delta.grade[Grade==grade & Subject=="English Language Arts"]
+  table.temp.sci <- isd.pba.delta.grade[Grade==grade & Subject=="Science"]
   print(grade)
 
   # Math Plot

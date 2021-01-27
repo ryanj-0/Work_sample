@@ -1,5 +1,5 @@
 # function to take in data
-section1_plot <- function(plot_data, testgroupname, subjectname){
+isd_testinggroup_plot <- function(plot_data, testgroupname, subjectname){
 
    plotty <- ggplot(plot_data, aes(x = reorder(IsdName, delta), y = delta, fill = delta)) +
       geom_hline(yintercept = 0) +
