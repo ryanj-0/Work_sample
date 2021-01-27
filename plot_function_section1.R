@@ -1,6 +1,7 @@
-isd_meansgp_plot <- function(plot_data, testgroupname, subjectname){
+# function to take in data
+section1_plot <- function(plot_data, testgroupname, subjectname){
 
-   ggplot(plot_data,aes(x = reorder(IsdName, delta), y = delta, fill = delta)) +
+   plotty <- ggplot(plot_data, aes(x = reorder(IsdName, delta), y = delta, fill = delta)) +
       geom_hline(yintercept = 0) +
       geom_bar(stat = "identity", width = 0.5) +
       scale_fill_gradient2(low = "red4",
@@ -18,5 +19,8 @@ isd_meansgp_plot <- function(plot_data, testgroupname, subjectname){
             plot.caption = element_text(hjust = 0)) +
       coord_flip()
 
-   return(plot)
-   }
+   #plot
+   plot(plotty)
+}
+
+

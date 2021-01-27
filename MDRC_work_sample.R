@@ -11,6 +11,11 @@
 # This code is used to scale up when directories are shared and used under same name;
 # Set working directory [setwd()] as needed
 
+# clear environment
+rm(list = ls())
+# clears graphics devices to plot later
+graphics.off()
+
 if(getwd()==paste0("C:/Users/",Sys.info()[6],"/Documents/R/MDRC")){
   dir <- getwd()
   message(paste0("Working directory: ", getwd()))
@@ -137,64 +142,70 @@ yearall[,':=' (IsdCode=as.numeric(IsdCode),
 # Year over Year (YoY) changes by MeanSGP
 
 ##### Yoy MeanSGP change by ISD ######
-isd.all.district.msgp <- yearall[DistrictCode==0 & Grade==0]
-isd.all.district.msgp[,c("DistrictCode",
-                         "DistrictName",
-                         "BuildingName",
-                         "BuildingCode",
-                         "Grade",
-                         "NumberAboveAverageGrowth",
-                         "NumberAverageGrowth",
-                         "NumberBelowAverageGrowth",
-                         "PercentAboveAverage",
-                         "PercentAverageGrowth",
-                         "PercentBelowAverage",
-                         "TotalIncluded"):=NULL] #drop columns; interested in only MeanSGP by Testing Group
+isd.msgp <- yearall[DistrictCode==0 & Grade==0]
+isd.msgp[,c("DistrictCode",
+            "DistrictName",
+            "BuildingName",
+            "BuildingCode",
+            "Grade",
+            "NumberAboveAverageGrowth",
+            "NumberAverageGrowth",
+            "NumberBelowAverageGrowth",
+            "PercentAboveAverage",
+            "PercentAverageGrowth",
+            "PercentBelowAverage",
+            "TotalIncluded"):=NULL] #drop columns; interested in only MeanSGP by Testing Group
 # Need to split data into two different years to find YoY changes
-isd.all.district.msgp.15 <- isd.all.district.msgp[SchoolYear=="15/16"] # only 15/16 data
-isd.all.district.msgp.16 <- isd.all.district.msgp[SchoolYear=="16/17"] # only 16/17 data
+isd.msgp.15 <- isd.msgp[SchoolYear=="15.16"] # only 15/16 data
+isd.msgp.16 <- isd.msgp[SchoolYear=="16.17"] # only 16/17 data
 
 # Note: Our data set will be smaller. i.e. missing records across the years
-isd.all.district.msgp.delta <- merge(isd.all.district.msgp.15,
-                                     isd.all.district.msgp.16,
-                                     by = c("IsdCode",
-                                            "IsdName",
-                                            "EntityType",
-                                            "Subject",
-                                            "TestingGroup"),
-                                     suffixes = c("old","new"))
-isd.all.district.msgp.delta[,delta:=MeanSGPnew-MeanSGPold]
-isd.all.district.msgp.delta[,c("SchoolYearold","SchoolYearnew","MeanSGPold","MeanSGPnew"):=NULL] # drop old columns
-isd.all.district.msgp <- isd.all.district.msgp[order(IsdCode,TestingGroup,Subject)] # reorder table for plotting
+isd.msgp.delta <- merge(isd.msgp.15,
+                        isd.msgp.16,
+                        by = c("IsdCode",
+                               "IsdName",
+                               "EntityType",
+                               "Subject",
+                               "TestingGroup"),
+                        suffixes = c("old","new"))
+isd.msgp.delta[,delta:=MeanSGPnew-MeanSGPold]
+isd.msgp.delta[,c("SchoolYearold","SchoolYearnew","MeanSGPold","MeanSGPnew"):=NULL] # drop old columns
+isd.msgp <- isd.msgp[order(IsdCode,TestingGroup,Subject)] # reorder table for plotting
 
 #--- Plotting Section ---
+# for loop to plot YoY change in MeanSGP by testinggroup and subject
 # open pdf to populate with graphs
+
 pdf(file = paste0(dir, repo, "/YoY Percent Changes in MeanSGP by ISD and Testing Group.pdf"), width = 11, height = 8.5)
 
-table.temp.math <- isd.all.district.msgp.delta[TestingGroup==testgroup & Subject=="Mathematics"]
-table.temp.ela <- isd.all.district.msgp.delta[TestingGroup==testgroup & Subject=="English Language Arts"]
-table.temp.sci <- isd.all.district.msgp.delta[TestingGroup==testgroup & Subject=="Science"]
+for (isd in 1:(length(isd.msgp.delta[,unique(TestingGroup)])+1)) {
 
-# for loop to plot the change in MeanSGP by testing group and subject; all combinations
-for (isd in 1:(length(isd.all.district.msgp.delta[,unique(TestingGroup)])+1)) {
+  # sets TestingGroup for iteration
+  testgroup <- isd.msgp.delta[,unique(TestingGroup)][isd]
 
-  testgroup <- isd.all.district.msgp.delta[,unique(TestingGroup)][isd] # sets TestingGroup for iteration
+  # Dynamic tables for plotting
+  isd.temp.math <- isd.msgp.delta[TestingGroup==testgroup & Subject=="Mathematics"]
+  isd.temp.ela <- isd.msgp.delta[TestingGroup==testgroup & Subject=="English Language Arts"]
+  isd.temp.sci <- isd.msgp.delta[TestingGroup==testgroup & Subject=="Science"]
 
   # Once if statement finish, closes pdf
-  if(i==length(isd.all.district.msgp.delta[,unique(TestingGroup)])+1){
-    dev.off()
+  if(isd==length(isd.msgp.delta[,unique(TestingGroup)])+1){
+    graphics.off()
+    message("Done plotting, PDF ready for viewing.")
   }
   # Plots each subject for current testing group
   else{
-    message("Plotting subjects for ", testgroup) # Prints in console what testing group is being used when making graphs
-    plot_function_section1()
-    # Plotting Plots
-    plot(plotty.math)
-    plot(plotty.ela)
-    plot(plotty.sci)
+    message("Plotting subjects for ", testgroup)
+    # Math Plot
+    section1_plot(isd.temp.math, testgroup, isd.temp.math[,unique(Subject)])
+    # ELA Plot
+    section1_plot(isd.temp.ela, testgroup, isd.temp.ela[,unique(Subject)])
+    # Science Plot
+    section1_plot(isd.temp.sci, testgroup, isd.temp.sci[,unique(Subject)])
   }
 }
-#---- End ----
+
+
 
 ##### MeanSGP by Grade #####
 # Data for Science is only for Grades 0,11
