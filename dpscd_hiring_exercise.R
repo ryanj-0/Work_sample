@@ -140,7 +140,6 @@ for (grd in 1:(length(isd.msgp.grade.delta[,unique(Grade)])+1)) {
 }
 
 
-
 ##### Section 2 #####
 #--------------------
 # Line graph to show overall YoY changes
@@ -150,267 +149,76 @@ isd.subjects <- yearall[DistrictCode==0 & TestingGroup=="All Students" & Grade==
 source(paste0(dir, repo, "/section2_plot.R"))
 
 
-# Interested in the State of Michigan; set ISD Code = 0 when asked
-# run plot function
-dpscd_overall_plot(isd.subjects)
 
-# Interested in Hillsdale ISD; set ISD code = 30 when asked
-dpscd_overall_plot(isd.subjects)
-
-
-# -------- End Section -----------#
-
-
-#------------- Section 3 -------------------#
+##### Section 3 #####
+#--------------------
 # Looking to show the top & bottom 5 ISD
 # by each Subject (All Students, All Grades)
+source(paste0(dir, repo, "/data_work_section3.R"))
+source(paste0(dir, repo, "/section3_plot.R"))
 
-
-##### Top/Bottom 5 Changes in MeanSGP by ISD (All Students, All Grades) #####
-isd.msgp.delta.topbottom <- isd.msgp.delta[TestingGroup=="All Students"] # Get top/bottom 5 ISD, and state (All Students)
-isd.msgp.delta.topbottom <- isd.msgp.delta.topbottom[order(-delta)] #order table by percent change largest to smallest
-
-
-isd.msgp.top5.math <- head(isd.msgp.delta.topbottom[Subject=="Mathematics"],5) # return top 5 delta
-isd.msgp.top5.ela <- head(isd.msgp.delta.topbottom[Subject=="English Language Arts"],5) # return top 5 delta
-isd.msgp.top5.sci <- head(isd.msgp.delta.topbottom[Subject=="Science"],5) # return top 5 delta
-isd.msgp.bottom5.math <- tail(isd.msgp.delta.topbottom[Subject=="Mathematics"],5) # return bottom 5 delta
-isd.msgp.bottom5.ela <- tail(isd.msgp.delta.topbottom[Subject=="English Language Arts"],5) # return bottom 5 delta
-isd.msgp.bottom5.sci <- tail(isd.msgp.delta.topbottom[Subject=="Science"],5) # return bottom 5 delta
-
-isd.msgp.compare.math <- rbind(isd.msgp.top5.math,isd.msgp.bottom5.math) # Combine top & bottom 5 isds; math
-isd.msgp.compare.math <- rbind(isd.msgp.compare.math,
-                                            isd.msgp.delta.topbottom[IsdCode==0 & Subject=="Mathematics"]) # add statewide level
-
-isd.msgp.compare.ela <- rbind(isd.msgp.top5.ela,isd.msgp.bottom5.ela) # combine top & bottom isds; ELA
-isd.msgp.compare.ela <- rbind(isd.msgp.compare.ela,
-                                       isd.msgp.delta.topbottom[IsdCode==0 & Subject=="English Language Arts"]) # add statewide level
-
-isd.msgp.compare.sci <- rbind(isd.msgp.top5.sci,isd.msgp.bottom5.sci) # combine top & bottom isds; science
-isd.msgp.compare.sci <- rbind(isd.msgp.compare.sci,
-                                           isd.msgp.delta.topbottom[IsdCode==0 & Subject=="Science"]) # add statewide level
-
-
-#--- Math Compare Plot ---#
-
-compare.plot.math <-
-
-  isd.msgp.compare.math %>%
-  ggplot(aes(x = reorder(IsdName, delta), y = delta, fill = delta)) +
-  geom_hline(yintercept = 0) +
-  geom_bar(stat = "identity", width = 0.5) +
-  scale_fill_gradient2(low = "red4",
-                       mid = "steelblue",
-                       high = "green",
-                       midpoint = 0,
-                       space = "Lab",
-                       name = "% Change in Mean SGP") +
-  labs(title = "Mathematics") +
-  xlab("ISD Name") +
-  ylab("Percent Change") +
-  geom_text(aes(label = round(delta,2), hjust = ifelse(delta >0,0,1)), size = 4) +
-  theme(legend.position = "top",
-        plot.caption = element_text(hjust = 0),
-        axis.text = element_text(size = 13)) +
-  coord_flip()
-
-#--- ELA Compare Plot ---#
-
-compare.plot.ela <-
-
-  isd.msgp.compare.ela %>%
-  ggplot(aes(x = reorder(IsdName, delta), y = delta, fill = delta)) +
-  geom_hline(yintercept = 0) +
-  geom_bar(stat = "identity", width = 0.5) +
-  scale_fill_gradient2(low = "red4",
-                       mid = "steelblue",
-                       high = "green",
-                       midpoint = 0,
-                       space = "Lab",
-                       name = "% Change in Mean SGP") +
-  labs(title = "English Language Arts") +
-  xlab("ISD Name") +
-  ylab("Percent Change") +
-  geom_text(aes(label = round(delta,2), hjust = ifelse(delta >0,0,1)), size = 4) +
-  theme(legend.position = "top",
-        plot.caption = element_text(hjust = 0),
-        axis.text = element_text(size = 13)) +
-  coord_flip()
-
-
-#--- Science Compare Plot ---#
-
-compare.plot.sci <-
-
-  isd.msgp.compare.sci %>%
-  ggplot(aes(x = reorder(IsdName, delta), y = delta, fill = delta)) +
-  geom_hline(yintercept = 0) +
-  geom_bar(stat = "identity", width = 0.5) +
-  scale_fill_gradient2(low = "red4",
-                       mid = "steelblue",
-                       high = "green",
-                       midpoint = 0,
-                       space = "Lab",
-                       name = "% Change in Mean SGP") +
-  labs(title = "Science") +
-  xlab("ISD Name") +
-  ylab("Percent Change") +
-  geom_text(aes(label = round(delta,2), hjust = ifelse(delta >0,0,1)), size = 4) +
-  theme(legend.position = "top",
-        plot.caption = element_text(hjust = 0),
-        axis.text = element_text(size = 13)) +
-  coord_flip()
-
-#---- End ----
-
-#----------- End Section ----------#
 
 
 #-------- Plot Section 2 & 3 --------#
 # open pdf to be able to populate with graphs
-pdf(file = paste0("C:/Users/johns/Desktop/Data_Analyst_Test/Overall & Comparison Plots.pdf"), width = 11, height = 8.5)
+pdf(file = paste0(dir, repo, "/Plots/Overall & Comparison Plots.pdf"), width = 11, height = 8.5)
 
-plot(overall.plot)
-plot(hillsdale.overall)
-plot(compare.plot.math)
-plot(compare.plot.ela)
-plot(compare.plot.sci)
+# Interested in the State of Michigan; set ISD Code = 0
+dpscd_overall_plot(isd.subjects, 0)
+# Interested in Hillsdale ISD; set ISD code = 30
+dpscd_overall_plot(isd.subjects, 30)
 
-dev.off()
+# math comparison plot
+compare_plots(isd.msgp.compare.math)
+# ela comparison plot
+compare_plots(isd.msgp.compare.ela)
+# sci comparison plot
+compare_plots(isd.msgp.compare.sci)
 
-#------- End of Section --------#
+# close plots
+graphics.off()
+message("Done plotting, PDF ready for viewing.")
 
 
-#--------- Section 4 ----------------#
-#look at changes in MeanSGP for Hillsdale ISD
+
+
+##### Section 4 ####
+#-------------------
+#look at changes in MeanSGP for Hillsdale ISD buildings
 #by TestingGroup and Grade
-
-hillsdale.all <- yearall[IsdCode==30]
-
-##### MeanSGP by Testing Group #####
-
-# Yoy MeanSGP change in Hillsdale
-hillsdale.msgp <- hillsdale.all[!Subject=="Social Studies"]
-hillsdale.msgp <- hillsdale.all[Grade==0]
-hillsdale.msgp <- hillsdale.msgp[!BuildingCode==0]
-hillsdale.msgp <- hillsdale.msgp[order(DistrictCode,TestingGroup,Subject)]
-hillsdale.msgp[,c("IsdCode",
-                   "IsdName",
-                   "Grade",
-                   "NumberAboveAverageGrowth",
-                   "NumberAverageGrowth",
-                   "NumberBelowAverageGrowth",
-                   "PercentAboveAverage",
-                   "PercentAverageGrowth",
-                   "PercentBelowAverage",
-                   "TotalIncluded"):=NULL] #drop columns
-hillsdale.msgp.15 <- hillsdale.msgp[SchoolYear=="15/16"]
-hillsdale.msgp.16 <- hillsdale.msgp[SchoolYear=="16/17"]
-
-# Note: Our data set is smaller. i.e. missing records across the years
-hillsdale.msgp.delta <- merge(hillsdale.msgp.15,
-                              hillsdale.msgp.16,
-                              by = c("DistrictName",
-                                     "DistrictCode",
-                                     "BuildingName",
-                                     "BuildingCode",
-                                     "EntityType",
-                                     "Subject",
-                                     "TestingGroup"),
-                              suffixes = c("old","new"))
-hillsdale.msgp.delta[,delta:=MeanSGPnew-MeanSGPold]
-hillsdale.msgp.delta[,c("SchoolYearold","SchoolYearnew","MeanSGPold","MeanSGPnew"):=NULL]
-
 
 #--- Plotting Section ---#
 
 # All Subjects
-pdf(file = paste0("C:/Users/johns/Desktop/Data_Analyst_Test/Hillsdale - Buildings, Percent Changes in MeanSGP by Testing Group.pdf"),
+pdf(file = paste0(dir, repo, "/Plots/Hillsdale - Buildings, Percent Changes in MeanSGP by Testing Group.pdf"),
     width = 11, height = 8.5)
 
-for (i in 1:(length(hillsdale.msgp.delta[,unique(TestingGroup)])+1)) {
-  testgroup <- hillsdale.msgp.delta[,unique(TestingGroup)][i]
-  table.temp.math <- hillsdale.msgp.delta[TestingGroup==testgroup & Subject=="Mathematics"]
-  table.temp.ela <- hillsdale.msgp.delta[TestingGroup==testgroup & Subject=="English Language Arts"]
-  table.temp.sci <- hillsdale.msgp.delta[TestingGroup==testgroup & Subject=="Science"]
+for (bld in 1:(length(hillsdale.msgp.delta[,unique(TestingGroup)])+1)) {
 
+  testgroup <- hillsdale.msgp.delta[,unique(TestingGroup)][bld]
+
+  bld.temp.math <- hillsdale.msgp.delta[TestingGroup==testgroup & Subject=="Mathematics"]
+  bld.temp.ela <- hillsdale.msgp.delta[TestingGroup==testgroup & Subject=="English Language Arts"]
+  bld.temp.sci <- hillsdale.msgp.delta[TestingGroup==testgroup & Subject=="Science"]
 
   # if statement to close pdf
-  if(i==length(hillsdale.msgp.delta[,unique(TestingGroup)])+1){
-    dev.off()
+  if(bld==length(hillsdale.msgp.delta[,unique(TestingGroup)])+1){
+    graphics.off()
+    message("Done plotting, PDF ready for viewing.")
   }
   else{
-    print(testgroup) # print testgroup that is being plotted
-
+    message("Plotting subjects for ", testgroup)
     # Math Plot
-    plotty.math <-
-      ggplot(table.temp.math,aes(x = reorder(BuildingName, delta), y = delta, fill = delta)) +
-      geom_hline(yintercept = 0) +
-      geom_bar(stat = "identity", width = 0.5) +
-      scale_fill_gradient2(low = "red4",
-                           mid = "steelblue4",
-                           high = "green",
-                           midpoint = 0,
-                           space = "Lab",
-                           name = "% Change: Mean SGP*") +
-      labs(title = "Percent Changes in Mean SGP* from 2015/2016 - 2016/2017 ",
-           subtitle = paste0("Mathematics: All Grades, ",testgroup),
-           caption = "*Mean Student Growth Percentile (Mean SGP)") +
-      xlab("Building Name") +
-      ylab("Percent Change") +
-      theme(legend.position = "top",
-            plot.caption = element_text(hjust = 0)) +
-      coord_flip()
-
+    isd_testinggroup_plot(bld.temp.math, testgroup, bld.temp.math[,unique(Subject)])
     # ELA Plot
-    plotty.ela <-
-      ggplot(table.temp.ela,aes(x = reorder(BuildingName, delta), y = delta, fill = delta)) +
-      geom_hline(yintercept = 0) +
-      geom_bar(stat = "identity", width = 0.5) +
-      scale_fill_gradient2(low = "red4",
-                           mid = "steelblue4",
-                           high = "green",
-                           midpoint = 0,
-                           space = "Lab",
-                           name = "% Change: Mean SGP*") +
-      labs(title = "Percent Changes in Mean SGP* from 2015/2016 - 2016/2017 ",
-           subtitle = paste0("English Language Arts: All Grades, ",testgroup),
-           caption = "*Mean Student Growth Percentile (Mean SGP)") +
-      xlab("Building Name") +
-      ylab("Percent Change") +
-      theme(legend.position = "top",
-            plot.caption = element_text(hjust = 0)) +
-      coord_flip()
-
-    #  Sci Plot
-    plotty.sci <-
-      ggplot(table.temp.sci,aes(x = reorder(BuildingName, delta), y = delta, fill = delta)) +
-      geom_hline(yintercept = 0) +
-      geom_bar(stat = "identity", width = 0.5) +
-      scale_fill_gradient2(low = "red4",
-                           mid = "steelblue4",
-                           high = "green",
-                           midpoint = 0,
-                           space = "Lab",
-                           name = "% Change: Mean SGP*") +
-      labs(title = "Percent Changes in Mean SGP* from 2015/2016 - 2016/2017 ",
-           subtitle = paste0("Science: All Grades, ",testgroup),
-           caption = "*Mean Student Growth Percentile (Mean SGP)") +
-      xlab("Building Name") +
-      ylab("Percent Change") +
-      theme(legend.position = "top",
-            plot.caption = element_text(hjust = 0)) +
-      coord_flip()
-
-    # Plotting Plots
-    plot(plotty.math)
-    plot(plotty.ela)
-    plot(plotty.sci)
+    isd_testinggroup_plot(bld.temp.ela, testgroup, bld.temp.ela[,unique(Subject)])
+    # Science Plot
+    isd_testinggroup_plot(bld.temp.sci, testgroup, bld.temp.sci[,unique(Subject)])
   }
 }
-#---- End -----
 
-##### MeanSGP by Grade #####
+
+### Grade ###
 
 # Yoy MeanSGP change by ISD (all buildings inherent in IsdCode=0), All Students (Grade)
 hillsdale.msgp <- hillsdale.all[!Subject=="Social Studies"]
