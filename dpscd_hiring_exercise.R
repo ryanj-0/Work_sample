@@ -144,38 +144,18 @@ for (grd in 1:(length(isd.msgp.grade.delta[,unique(Grade)])+1)) {
 ##### Section 2 #####
 #--------------------
 # Line graph to show overall YoY changes
-# By subjects and all students included; Social Science NA for 16/17 year
-
-isd.subjects <- yearall[DistrictCode==0 & IsdCode==0 & TestingGroup=="All Students" & Grade==0]
-hillsdale.subjects <- yearall[IsdCode==30 & Grade==0 & TestingGroup=="All Students" & DistrictCode==0]
-
-overall.plot <-
-  ggplot(isd.subjects, aes(x = SchoolYear, y = MeanSGP, color = Subject)) +
-  geom_point() +
-  geom_line(aes(group = Subject)) +
-  labs(title = "State of Michigan",
-       subtitle = "Changes in MeanSGP by Subject",
-       caption = "Figure 1.") +
-  xlab("School Year") +
-  ylab("MeanSGP") +
-  scale_x_discrete(labels = c("2015/2016", "2016/2017")) +
-  theme(plot.caption = element_text(hjust = 0))
+# By subjects, all students included; Social Science NA for 16/17 year
+isd.subjects <- yearall[DistrictCode==0 & TestingGroup=="All Students" & Grade==0]
+# soucrce plot functions
+source(paste0(dir, repo, "/section2_plot.R"))
 
 
+# Interested in the State of Michigan; set ISD Code = 0 when asked
+# run plot function
+dpscd_overall_plot(isd.subjects)
 
-hillsdale.overall <-
-
-  ggplot(hillsdale.subjects, aes(x = SchoolYear, y = MeanSGP, color = Subject)) +
-  geom_point() +
-  geom_line(aes(group = Subject)) +
-  labs(title = "HillsDale ISD: All Districts",
-       subtitle = "Changes in MeanSGP by Subject",
-       caption = "") +
-  xlab("School Year") +
-  ylab("MeanSGP") +
-  scale_x_discrete(labels = c("2015/2016", "2016/2017")) +
-  theme(plot.caption = element_text(hjust = 0))
-
+# Interested in Hillsdale ISD; set ISD code = 30 when asked
+dpscd_overall_plot(isd.subjects)
 
 
 # -------- End Section -----------#
