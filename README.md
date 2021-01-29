@@ -1,10 +1,13 @@
 # Summary
-In this repository consists of folders with supporting documents or data stored in them and the other files are code used within the script *dpscd_hiring_exercise.R*. The titles of the scripts are somewhat descriptive as this repo is a work in progress in terms of organization, and hopefully will be organized within a week or so. Updates to come for *MDRC_sample* are:
+This is a work sample for employers to see my work, how I code, and what my abilites are as someone who uses R. Below are descriptions of folders which house differnt parts of the code for the main script, *dpscd_hiring_exercise.R*. 
+The titles of the scripts are somewhat descriptive as this repo is a work in progress in terms of organization, and hopefully will be organized within a week or so. 
+
+Updates to come for repo are:
 
 1. Re-label repository for general work samples in future.
 2. Organize scripts into folders:
-  * Functions
-  * Data Managment
+  * ~~Functions~~ (01/28/2021)
+  * ~~Data Managment~~ (01/28/2021)
 3. Improve function names and titles
 4. Create universal functions throughout. i.e. Section 1 and Section 4 are similar so functions could be combined
 5. Create initalizing system script to *source* in the beginning
