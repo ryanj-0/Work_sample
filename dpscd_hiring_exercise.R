@@ -72,7 +72,7 @@ source(paste0(dir, repo, "/section1_datawork.R"))
 
 
 #--- Plotting Yoy MeanSGP change by ISD ---
-source(paste0(dir, repo,"/isd_testinggroup_plot.R"))
+source(paste0(dir, repo,"/Functions/isd_testinggroup_plot.R"))
 # open pdf to populate with graphs
 pdf(file = paste0(dir, repo, "/Plots/YoY Percent Changes in MeanSGP by ISD and Testing Group.pdf"), width = 11, height = 8.5)
 
@@ -108,7 +108,7 @@ for (isd in 1:(length(isd.msgp.delta[,unique(TestingGroup)])+1)) {
 
 #--- Plotting YoY MeanSGP changes by Grade ---
 # Data for Science is only for Grades 0,11
-source(paste0(dir, repo,"/isd_grade_plot.R"))
+source(paste0(dir, repo,"/Functions/isd_grade_plot.R"))
 # open pdf to populate with graphs
 pdf(file = paste0(dir, repo, "/Plots/YoY Percent Changes in MeanSGP by ISD and Grade.pdf"), width = 11, height = 8.5)
 
@@ -146,7 +146,7 @@ for (grd in 1:(length(isd.msgp.grade.delta[,unique(Grade)])+1)) {
 # By subjects, all students included; Social Science NA for 16/17 year
 isd.subjects <- yearall[DistrictCode==0 & TestingGroup=="All Students" & Grade==0]
 # soucrce plot functions
-source(paste0(dir, repo, "/section2_plot.R"))
+source(paste0(dir, repo, "/Functions/section2_plot.R"))
 
 
 
@@ -155,7 +155,7 @@ source(paste0(dir, repo, "/section2_plot.R"))
 # Looking to show the top & bottom 5 ISD
 # by each Subject (All Students, All Grades)
 source(paste0(dir, repo, "/data_work_section3.R"))
-source(paste0(dir, repo, "/section3_plot.R"))
+source(paste0(dir, repo, "/Functions/section3_plot.R"))
 
 
 
@@ -187,7 +187,7 @@ message("Done plotting, PDF ready for viewing.")
 #look at changes in MeanSGP for Hillsdale ISD buildings
 #by TestingGroup and Grade
 source(paste0(dir, repo, "/data_work_section4.R"))
-source(paste0(dir, repo, "/hillsdale_testinggroup_plot.R"))
+source(paste0(dir, repo, "/Functions/hillsdale_testinggroup_plot.R"))
 
 #--- Plotting Yoy MeanSGP for Hillsdale ISD by Testing Group ---
 # All Subjects
@@ -219,7 +219,7 @@ for (bld in 1:(length(hillsdale.msgp.delta[,unique(TestingGroup)])+1)) {
 
 
 ### Grade ###
-source(paste0(dir, repo,"/hillsdale_grade_plot.R"))
+source(paste0(dir, repo,"/Functions/hillsdale_grade_plot.R"))
 # All Subjects
 pdf(file = paste0(dir, repo, "/Plots/Hillsdale - Buildings, Percent Change in MeanSGP by Grade.pdf"), width = 11, height = 8.5)
 
