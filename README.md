@@ -15,6 +15,12 @@ In this repository consists of folders with supporting documents or data stored 
 ## Data
 This folder houses the data used in creating the reports (found in *Reports*). Succinctly, there is a key and two academic years of data from [DPSCD](https://www.detroitk12.org/) which has been anotomized for public use purposes. I have gotten permission to share the data and other information publicly available on their site.
 
+## Data_work
+Houses files for data prep for each section.
+
+## Functions
+Houses plot functions for each respective section.
+
 ## Info
 This is other information related to the data. For example, there is a variable of MeanSGP (Mean Student Growth Percentile) and within *Info* there is a link to a pdf which explains a little more about this particular metric DPSCD is using.
 
