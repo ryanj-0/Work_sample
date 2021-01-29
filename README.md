@@ -1,5 +1,5 @@
 # Summary
-Formerly named *DMRC_sample*, this is a work sample for employers to see my work, how I code, and what my abilites are as someone who uses R. Below are descriptions of folders which house differnt parts of the code for the main script, *dpscd_hiring_exercise.R*. 
+Formerly named *MDRC_sample*, this is a work sample for employers to see my work, how I code, and what my abilites are as someone who uses R. Below are descriptions of folders which house differnt parts of the code for the main script, *dpscd_hiring_exercise.R*. 
 The titles of the scripts are somewhat descriptive as this repo is a work in progress in terms of organization, and hopefully will be organized within a week or so. 
 
 Updates to come for repo are:
