@@ -60,7 +60,7 @@ year16 <- fread(file = paste0(dir, repo,  "/Data/MI Statewide Student Growth 201
 yearall <- rbind(year15,year16,use.names = T)
 
 # data cleaning
-source(paste0(dir, repo,"/data_cleaning.R"))
+source(paste0(dir, repo,"/Data_work/data_work_cleaning.R"))
 
 
 
@@ -68,7 +68,7 @@ source(paste0(dir, repo,"/data_cleaning.R"))
 #--------------------
 # Looking for Testing Group Disparities by ISD
 # Year over Year (YoY) changes by MeanSGP
-source(paste0(dir, repo, "/section1_datawork.R"))
+source(paste0(dir, repo, "/Data_work/data_work_section1.R"))
 
 
 #--- Plotting Yoy MeanSGP change by ISD ---
@@ -154,7 +154,7 @@ source(paste0(dir, repo, "/Functions/section2_plot.R"))
 #--------------------
 # Looking to show the top & bottom 5 ISD
 # by each Subject (All Students, All Grades)
-source(paste0(dir, repo, "/data_work_section3.R"))
+source(paste0(dir, repo, "/Data_work/data_work_section3.R"))
 source(paste0(dir, repo, "/Functions/section3_plot.R"))
 
 
@@ -186,7 +186,7 @@ message("Done plotting, PDF ready for viewing.")
 #-------------------
 #look at changes in MeanSGP for Hillsdale ISD buildings
 #by TestingGroup and Grade
-source(paste0(dir, repo, "/data_work_section4.R"))
+source(paste0(dir, repo, "/Data_work/data_work_section4.R"))
 source(paste0(dir, repo, "/Functions/hillsdale_testinggroup_plot.R"))
 
 #--- Plotting Yoy MeanSGP for Hillsdale ISD by Testing Group ---
