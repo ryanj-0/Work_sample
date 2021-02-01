@@ -16,16 +16,16 @@ rm(list = ls())
 # clears graphics devices to plot later
 graphics.off()
 
-if(getwd()==paste0("C:/Users/",Sys.info()[6],"/Documents/R/MDRC")){
+if(getwd()==paste0("C:/Users/",Sys.info()[6],"/Documents/R")){
   dir <- getwd()
   message(paste0("Working directory: ", getwd()))
 } else{
-  setwd(paste0("C:/Users/",Sys.info()[6],"/Documents/R/MDRC"))
+  setwd(paste0("C:/Users/",Sys.info()[6],"/Documents/R"))
   message(paste0("Directory changed, set to: ", getwd()))
 }
 
 # Set variables
-repo <- "/MDRC_sample"
+repo <- "/Work_sample/work_sample"
 
 
 #### Loading Needed packages ####
