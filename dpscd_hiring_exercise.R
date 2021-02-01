@@ -11,56 +11,19 @@
 # This code is used to scale up when directories are shared and used under same name;
 # Set working directory [setwd()] as needed
 
-# clear environment
-rm(list = ls())
-# clears graphics devices to plot later
-graphics.off()
+# System Initialization
+source("~/R/Data_work/import_data.R")
 
-if(getwd()==paste0("C:/Users/",Sys.info()[6],"/Documents/R")){
-  dir <- getwd()
-  message(paste0("Working directory: ", getwd()))
-} else{
-  setwd(paste0("C:/Users/",Sys.info()[6],"/Documents/R"))
-  message(paste0("Directory changed, set to: ", getwd()))
-}
-
-# Set variables
+# Set global variables
 repo <- "/Work_sample/work_sample"
-
-
-#### Loading Needed packages ####
-# Checks for needed package [pacman] and then loads other packages [pkgs]
-# future development: create automated check to return missing packages using [pkgs %in% loadedNamespaces()] (01/24/2021; rzj1019)
-
-require("pacman", character.only = TRUE)
-
-pkgs <- c("data.table",
-          "tidyverse",
-          "ggthemes",
-          "ggrepel",
-          "svMisc")
-
-p_load(pkgs, character.only = TRUE)
-
 
 
 ##### Import Data and Data Cleaning #####
 #----------------------------------------
-
-# Variable Key
-key <- fread(file = paste0(dir, repo, "/Data/MI Statewide Student Growth (File Layout Key).csv"))
-
-# 2015-2016 School Year
-year15 <- fread(file = paste0(dir, repo, "/Data/MI Statewide Student Growth 2015-16.csv"))
-
-# 2016 - 2017 School Year
-year16 <- fread(file = paste0(dir, repo,  "/Data/MI Statewide Student Growth 2016-17.csv"))
-
-# All Years Table: 2015-2017
-yearall <- rbind(year15,year16,use.names = T)
-
-# data cleaning
-source(paste0(dir, repo,"/Data_work/data_work_cleaning.R"))
+# Import data
+source(paste(dir, repo,"/Data_work/import_data.R"))
+# Data cleaning, returns table, Yearall, with cleaned data
+source(paste(dir, repo,"/Data_work/data_work_cleaning.R"))
 
 
 
@@ -68,8 +31,13 @@ source(paste0(dir, repo,"/Data_work/data_work_cleaning.R"))
 #--------------------
 # Looking for Testing Group Disparities by ISD
 # Year over Year (YoY) changes by MeanSGP
+
+# Data prepping for
 source(paste0(dir, repo, "/Data_work/data_work_section1.R"))
 
+# Variable for level of admin we are interested in
+adminlevel <- "IsdName"
+adminname <- "ISD Name"
 
 #--- Plotting Yoy MeanSGP change by ISD ---
 source(paste0(dir, repo,"/Functions/isd_testinggroup_plot.R"))
@@ -105,9 +73,10 @@ for (isd in 1:(length(isd.msgp.delta[,unique(TestingGroup)])+1)) {
 }
 
 
-
-#--- Plotting YoY MeanSGP changes by Grade ---
+# Looking for Grade Disparities by ISD
+# Year over Year (YoY) changes by MeanSGP
 # Data for Science is only for Grades 0,11
+
 source(paste0(dir, repo,"/Functions/isd_grade_plot.R"))
 # open pdf to populate with graphs
 pdf(file = paste0(dir, repo, "/Plots/YoY Percent Changes in MeanSGP by ISD and Grade.pdf"), width = 11, height = 8.5)
@@ -184,10 +153,14 @@ message("Done plotting, PDF ready for viewing.")
 
 ##### Section 4 ####
 #-------------------
-#look at changes in MeanSGP for Hillsdale ISD buildings
-#by TestingGroup and Grade
+# Looking for Testing Group Disparities by buildings in Hillsdale ISD
+# Year over Year (YoY) changes by MeanSGP
 source(paste0(dir, repo, "/Data_work/data_work_section4.R"))
 source(paste0(dir, repo, "/Functions/hillsdale_testinggroup_plot.R"))
+
+# Variable for level of admin we are interested in
+adminlevel <- "BuildingName"
+adminname <- "Building Name"
 
 #--- Plotting Yoy MeanSGP for Hillsdale ISD by Testing Group ---
 # All Subjects
@@ -218,7 +191,8 @@ for (bld in 1:(length(hillsdale.msgp.delta[,unique(TestingGroup)])+1)) {
 }
 
 
-### Grade ###
+# Looking for Grade Disparities by buildings in Hillsdale ISD
+# Year over Year (YoY) changes by MeanSGP
 source(paste0(dir, repo,"/Functions/hillsdale_grade_plot.R"))
 # All Subjects
 pdf(file = paste0(dir, repo, "/Plots/Hillsdale - Buildings, Percent Change in MeanSGP by Grade.pdf"), width = 11, height = 8.5)
