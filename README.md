@@ -5,7 +5,7 @@ The titles of the scripts are somewhat descriptive as this repo is a work in pro
 Updates to come for repo are:
 
 1. ~Re-label repository for general work samples in future.~
-2. Organize scripts into folders:
+2. ~Organize scripts into folders:~
   * ~Functions~ (01/28/2021)
   * ~Data Managment~ (01/28/2021)
 3. ~Improve function names and titles~
