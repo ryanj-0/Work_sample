@@ -11,6 +11,7 @@ if(getwd()==paste0("C:/Users/",Sys.info()[6],"/Documents/R")){
    message(paste0("Current working directory: ", getwd()))
 } else{
    setwd(paste0("C:/Users/",Sys.info()[6],"/Documents/R"))
+   dir <- getwd()
    message(paste0("Directory changed, set to: ", getwd()))
 }
 

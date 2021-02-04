@@ -8,39 +8,41 @@
 ############################
 
 #### Initialize System Requirements ####
-# This code is used to scale up when directories are shared and used under same name;
-# Set working directory [setwd()] as needed
+#---------------------------------------
 
 # System Initialization
-source("~/R/Data_work/import_data.R")
+source("~/R/Work_sample/work_sample/system_init.R")
 
 # Set global variables
 repo <- "/Work_sample/work_sample"
+
+# Global Functions
+source(paste0(dir, repo,"/Functions/testinggroup_plot.R"))
+source(paste0(dir, repo,"/Functions/grade_plot.R"))
 
 
 ##### Import Data and Data Cleaning #####
 #----------------------------------------
 # Import data
-source(paste(dir, repo,"/Data_work/import_data.R"))
+source(paste0(dir, repo,"/Data_work/import_data.R"))
 # Data cleaning, returns table, Yearall, with cleaned data
-source(paste(dir, repo,"/Data_work/data_work_cleaning.R"))
-
+source(paste0(dir, repo,"/Data_work/data_work_cleaning.R"))
 
 
 ##### Section 1 #####
 #--------------------
-# Looking for Testing Group Disparities by ISD
+# Looking for Testing Group and Disparities by ISD, respectively
 # Year over Year (YoY) changes by MeanSGP
 
 # Data prepping for
 source(paste0(dir, repo, "/Data_work/data_work_section1.R"))
 
-# Variable for level of admin we are interested in
-adminlevel <- "IsdName"
-adminname <- "ISD Name"
+# X-axis label and column we are interested in
+xlabel <- "ISD Name"
+col.interest = "IsdName"
 
-#--- Plotting Yoy MeanSGP change by ISD ---
-source(paste0(dir, repo,"/Functions/isd_testinggroup_plot.R"))
+#--- Testing Group ---
+
 # open pdf to populate with graphs
 pdf(file = paste0(dir, repo, "/Plots/YoY Percent Changes in MeanSGP by ISD and Testing Group.pdf"), width = 11, height = 8.5)
 
@@ -64,20 +66,17 @@ for (isd in 1:(length(isd.msgp.delta[,unique(TestingGroup)])+1)) {
   else{
     message("Plotting subjects for ", testgroup)
     # Math Plot
-    isd_testinggroup_plot(isd.temp.math, testgroup, isd.temp.math[,unique(Subject)])
+    testinggroup_plot(isd.temp.math, testgroup, isd.temp.math[,unique(Subject)])
     # ELA Plot
-    isd_testinggroup_plot(isd.temp.ela, testgroup, isd.temp.ela[,unique(Subject)])
+    testinggroup_plot(isd.temp.ela, testgroup, isd.temp.ela[,unique(Subject)])
     # Science Plot
-    isd_testinggroup_plot(isd.temp.sci, testgroup, isd.temp.sci[,unique(Subject)])
+    testinggroup_plot(isd.temp.sci, testgroup, isd.temp.sci[,unique(Subject)])
   }
 }
 
-
-# Looking for Grade Disparities by ISD
-# Year over Year (YoY) changes by MeanSGP
+#--- Grade ---
 # Data for Science is only for Grades 0,11
 
-source(paste0(dir, repo,"/Functions/isd_grade_plot.R"))
 # open pdf to populate with graphs
 pdf(file = paste0(dir, repo, "/Plots/YoY Percent Changes in MeanSGP by ISD and Grade.pdf"), width = 11, height = 8.5)
 
@@ -100,11 +99,11 @@ for (grd in 1:(length(isd.msgp.grade.delta[,unique(Grade)])+1)) {
   else{
     message("Plotting subjects for ", grade, "th grade")
     # Math Plot
-    isd_grade_plot(isd.temp.math, grade, isd.temp.math[,unique(Subject)])
+    grade_plot(isd.temp.math, grade, isd.temp.math[,unique(Subject)])
     # ELA Plot
-    isd_grade_plot(isd.temp.ela, grade, isd.temp.ela[,unique(Subject)])
+    grade_plot(isd.temp.ela, grade, isd.temp.ela[,unique(Subject)])
     # Science Plot
-    isd_grade_plot(isd.temp.sci, grade, isd.temp.sci[,unique(Subject)])
+    grade_plot(isd.temp.sci, grade, isd.temp.sci[,unique(Subject)])
   }
 }
 
@@ -156,11 +155,10 @@ message("Done plotting, PDF ready for viewing.")
 # Looking for Testing Group Disparities by buildings in Hillsdale ISD
 # Year over Year (YoY) changes by MeanSGP
 source(paste0(dir, repo, "/Data_work/data_work_section4.R"))
-source(paste0(dir, repo, "/Functions/hillsdale_testinggroup_plot.R"))
 
-# Variable for level of admin we are interested in
-adminlevel <- "BuildingName"
-adminname <- "Building Name"
+# X-axis label and column we are interested in
+xlabel <- "Building Name"
+col.interest = "BuildingName"
 
 #--- Plotting Yoy MeanSGP for Hillsdale ISD by Testing Group ---
 # All Subjects
@@ -182,11 +180,11 @@ for (bld in 1:(length(hillsdale.msgp.delta[,unique(TestingGroup)])+1)) {
   else{
     message("Plotting subjects for ", testgroup)
     # Math Plot
-    hillsdale_testinggroup_plot(bld.temp.math, testgroup, bld.temp.math[,unique(Subject)])
+    testinggroup_plot(bld.temp.math, testgroup, bld.temp.math[,unique(Subject)])
     # ELA Plot
-    hillsdale_testinggroup_plot(bld.temp.ela, testgroup, bld.temp.ela[,unique(Subject)])
+    testinggroup_plot(bld.temp.ela, testgroup, bld.temp.ela[,unique(Subject)])
     # Science Plot
-    hillsdale_testinggroup_plot(bld.temp.sci, testgroup, bld.temp.sci[,unique(Subject)])
+    testinggroup_plot(bld.temp.sci, testgroup, bld.temp.sci[,unique(Subject)])
   }
 }
 
@@ -212,10 +210,10 @@ for (grd in 1:(length(hillsdale.msgp.grade.delta[,unique(Grade)])+1)) {
   else{
     message("Plotting subjects for ", grade, "th grade")
     # Math Plot
-    hillsdale_grade_plot(bld.temp.math, grade, bld.temp.math[,unique(Subject)])
+    grade_plot(bld.temp.math, grade, bld.temp.math[,unique(Subject)])
     # ELA Plot
-    hillsdale_grade_plot(bld.temp.ela, grade, bld.temp.ela[,unique(Subject)])
+    grade_plot(bld.temp.ela, grade, bld.temp.ela[,unique(Subject)])
     # Science Plot
-    hillsdale_grade_plot(bld.temp.sci, grade, bld.temp.sci[,unique(Subject)])
+    grade_plot(bld.temp.sci, grade, bld.temp.sci[,unique(Subject)])
   }
 }
