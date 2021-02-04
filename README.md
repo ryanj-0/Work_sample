@@ -8,9 +8,9 @@ Updates to come for repo are:
 2. Organize scripts into folders:
   * ~Functions~ (01/28/2021)
   * ~Data Managment~ (01/28/2021)
-3. Improve function names and titles
-4. Create universal functions throughout. i.e. Section 1 and Section 4 are similar so functions could be combined
-5. Create initalizing system script to *source* in the beginning
+3. ~Improve function names and titles~
+4. ~Create universal functions throughout. i.e. Section 1 and Section 4 are similar so functions could be combined~
+5. ~Create initalizing system script to *source* in the beginning~
 6. Function to generate reports
 8. Rshiny app (*rshiny* repo - need to rename)
 7. More to come...
