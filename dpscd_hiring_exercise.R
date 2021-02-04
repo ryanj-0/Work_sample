@@ -19,23 +19,24 @@ repo <- "/Work_sample/work_sample"
 # Global Functions
 source(paste0(dir, repo,"/Functions/testinggroup_plot.R"))
 source(paste0(dir, repo,"/Functions/grade_plot.R"))
+source(paste0(dir, repo, "/Functions/dpscd_overall_plot.R"))
 
 
-##### Import Data and Data Cleaning #####
-#----------------------------------------
+##### Import Data, Data Cleaning, and Data Prep #####
+#----------------------------------------------------
 # Import data
 source(paste0(dir, repo,"/Data_work/import_data.R"))
 # Data cleaning, returns table, Yearall, with cleaned data
 source(paste0(dir, repo,"/Data_work/data_work_cleaning.R"))
 
+# Data Prep
+source(paste0(dir, repo, "/Data_work/change_meansgp_by_isd.R"))
+source(paste0(dir, repo, "/Data_work/change_meansgp_hillsdale.R"))
 
-##### Section 1 #####
-#--------------------
-# Looking for Testing Group and Disparities by ISD, respectively
-# Year over Year (YoY) changes by MeanSGP
 
-# Data prepping for
-source(paste0(dir, repo, "/Data_work/data_work_section1.R"))
+##### Year over Year (YoY) changes in MeanSGP by ISD #####
+#---------------------------------------------------------
+# Looking for Testing Group and Grade disparities by ISD, respectively
 
 # X-axis label and column we are interested in
 xlabel <- "ISD Name"
@@ -66,11 +67,17 @@ for (isd in 1:(length(isd.msgp.delta[,unique(TestingGroup)])+1)) {
   else{
     message("Plotting subjects for ", testgroup)
     # Math Plot
-    testinggroup_plot(isd.temp.math, testgroup, isd.temp.math[,unique(Subject)])
+    testinggroup_plot(plot_data = isd.temp.math,
+                      testgroupname = testgroup,
+                      subjectname = isd.temp.math[,unique(Subject)])
     # ELA Plot
-    testinggroup_plot(isd.temp.ela, testgroup, isd.temp.ela[,unique(Subject)])
+    testinggroup_plot(plot_data = isd.temp.ela,
+                      testgroupname = testgroup,
+                      subjectname = isd.temp.ela[,unique(Subject)])
     # Science Plot
-    testinggroup_plot(isd.temp.sci, testgroup, isd.temp.sci[,unique(Subject)])
+    testinggroup_plot(plot_data = isd.temp.sci,
+                      testgroupname = testgroup,
+                      subjectname = isd.temp.sci[,unique(Subject)])
   }
 }
 
@@ -99,69 +106,31 @@ for (grd in 1:(length(isd.msgp.grade.delta[,unique(Grade)])+1)) {
   else{
     message("Plotting subjects for ", grade, "th grade")
     # Math Plot
-    grade_plot(isd.temp.math, grade, isd.temp.math[,unique(Subject)])
+    grade_plot(plot_data =isd.temp.math,
+               gradename = grade,
+               subjectname = isd.temp.math[,unique(Subject)])
     # ELA Plot
-    grade_plot(isd.temp.ela, grade, isd.temp.ela[,unique(Subject)])
+    grade_plot(plot_data = isd.temp.ela,
+               gradename = grade,
+               subjectname = isd.temp.ela[,unique(Subject)])
     # Science Plot
-    grade_plot(isd.temp.sci, grade, isd.temp.sci[,unique(Subject)])
+    grade_plot(plot_data = isd.temp.sci,
+               gradename = grade,
+               subjectname = isd.temp.sci[,unique(Subject)])
   }
 }
 
-
-##### Section 2 #####
-#--------------------
-# Line graph to show overall YoY changes
-# By subjects, all students included; Social Science NA for 16/17 year
-isd.subjects <- yearall[DistrictCode==0 & TestingGroup=="All Students" & Grade==0]
-# soucrce plot functions
-source(paste0(dir, repo, "/Functions/section2_plot.R"))
-
-
-
-##### Section 3 #####
-#--------------------
-# Looking to show the top & bottom 5 ISD
-# by each Subject (All Students, All Grades)
-source(paste0(dir, repo, "/Data_work/data_work_section3.R"))
-source(paste0(dir, repo, "/Functions/section3_plot.R"))
-
-
-
-#-------- Plot Section 2 & 3 --------#
-# open pdf to be able to populate with graphs
-pdf(file = paste0(dir, repo, "/Plots/Overall & Comparison Plots.pdf"), width = 11, height = 8.5)
-
-# Interested in the State of Michigan; set ISD Code = 0
-dpscd_overall_plot(isd.subjects, 0)
-# Interested in Hillsdale ISD; set ISD code = 30
-dpscd_overall_plot(isd.subjects, 30)
-
-# math comparison plot
-compare_plots(isd.msgp.compare.math)
-# ela comparison plot
-compare_plots(isd.msgp.compare.ela)
-# sci comparison plot
-compare_plots(isd.msgp.compare.sci)
-
-# close plots
-graphics.off()
-message("Done plotting, PDF ready for viewing.")
-
-
-
-
-##### Section 4 ####
-#-------------------
-# Looking for Testing Group Disparities by buildings in Hillsdale ISD
-# Year over Year (YoY) changes by MeanSGP
-source(paste0(dir, repo, "/Data_work/data_work_section4.R"))
+##### Year over Year (YoY) changes in MeanSGP for Hillsdale ISD #####
+#--------------------------------------------------------------------
+# Looking for Testing Group and Grade disparities by buildings, respectively
 
 # X-axis label and column we are interested in
 xlabel <- "Building Name"
 col.interest = "BuildingName"
 
-#--- Plotting Yoy MeanSGP for Hillsdale ISD by Testing Group ---
-# All Subjects
+#--- Testing Group ---
+
+# open pdf to populate with graphs
 pdf(file = paste0(dir, repo, "/Plots/Hillsdale - Buildings Percent Change in MeanSGP by Testing Group.pdf"), width = 11, height = 8.5)
 
 for (bld in 1:(length(hillsdale.msgp.delta[,unique(TestingGroup)])+1)) {
@@ -180,19 +149,24 @@ for (bld in 1:(length(hillsdale.msgp.delta[,unique(TestingGroup)])+1)) {
   else{
     message("Plotting subjects for ", testgroup)
     # Math Plot
-    testinggroup_plot(bld.temp.math, testgroup, bld.temp.math[,unique(Subject)])
+    testinggroup_plot(plot_data = bld.temp.math,
+                      testgroupname = testgroup,
+                      subjectname = bld.temp.math[,unique(Subject)])
     # ELA Plot
-    testinggroup_plot(bld.temp.ela, testgroup, bld.temp.ela[,unique(Subject)])
+    testinggroup_plot(plot_data = bld.temp.ela,
+                      testgroupname = testgroup,
+                      subjectname = bld.temp.ela[,unique(Subject)])
     # Science Plot
-    testinggroup_plot(bld.temp.sci, testgroup, bld.temp.sci[,unique(Subject)])
+    testinggroup_plot(plot_data = bld.temp.sci,
+                      testgroupname = testgroup,
+                      subjectname = bld.temp.sci[,unique(Subject)])
   }
 }
 
+#--- Grade ---
+# Data for Science is only for Grades 0,11
 
-# Looking for Grade Disparities by buildings in Hillsdale ISD
-# Year over Year (YoY) changes by MeanSGP
-source(paste0(dir, repo,"/Functions/hillsdale_grade_plot.R"))
-# All Subjects
+# open pdf to populate with graphs
 pdf(file = paste0(dir, repo, "/Plots/Hillsdale - Buildings, Percent Change in MeanSGP by Grade.pdf"), width = 11, height = 8.5)
 
 for (grd in 1:(length(hillsdale.msgp.grade.delta[,unique(Grade)])+1)) {
@@ -210,10 +184,61 @@ for (grd in 1:(length(hillsdale.msgp.grade.delta[,unique(Grade)])+1)) {
   else{
     message("Plotting subjects for ", grade, "th grade")
     # Math Plot
-    grade_plot(bld.temp.math, grade, bld.temp.math[,unique(Subject)])
+    grade_plot(plot_data = bld.temp.math,
+               gradename = grade,
+               subjectname = bld.temp.math[,unique(Subject)])
     # ELA Plot
-    grade_plot(bld.temp.ela, grade, bld.temp.ela[,unique(Subject)])
+    grade_plot(plot_data = bld.temp.ela,
+               gradename = grade,
+               subjectname = bld.temp.ela[,unique(Subject)])
     # Science Plot
-    grade_plot(bld.temp.sci, grade, bld.temp.sci[,unique(Subject)])
+    grade_plot(plot_data = bld.temp.sci,
+               gradename = grade,
+               subjectname = bld.temp.sci[,unique(Subject)])
   }
 }
+
+##### Section 2 #####
+#--------------------
+# Line graph to show overall YoY changes
+
+
+
+
+
+
+##### Section 3 #####
+#--------------------
+# Looking to show the top & bottom 5 ISD
+# by each Subject (All Students, All Grades)
+source(paste0(dir, repo, "/Data_work/data_work_section3.R"))
+source(paste0(dir, repo, "/Functions/section3_plot.R"))
+
+
+
+##### Overall Plot and Comparison Plots #####
+#--------------------------------------------
+
+# open pdf to be able to populate with graphs
+pdf(file = paste0(dir, repo, "/Plots/Overall & Comparison Plots.pdf"), width = 11, height = 8.5)
+
+#--- Plot showing YoY change in MeanSGP; Overall by Subject ---
+
+# State of Michigan; isdcode = 0
+dpscd_overall_plot(plot_data = isd.subjects, isdcode = 0)
+
+# Hillsdale ISD; isdcode = 30
+dpscd_overall_plot(plot_data = isd.subjects, isdcode = 30)
+
+
+#--- Comparison plot showing YoY change in MeanSGP for the top & bottom 5 ISDs compared with the State of Michigan ---
+# Math
+comparison_plots(plot_data = isd.msgp.compare.math)
+# ELA
+comparison_plots(plot_data = isd.msgp.compare.ela)
+# Sci
+comparison_plots(plot_data = isd.msgp.compare.sci)
+
+# close plots
+graphics.off()
+message("Done plotting, PDF ready for viewing.")
