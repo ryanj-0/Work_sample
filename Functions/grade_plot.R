@@ -1,7 +1,9 @@
 # function to take in data
-hillsdale_grade_plot <- function(plot_data, gradename, subjectname){
+grade_plot <- function(plot_data, gradename, subjectname){
 
-   plotty <- ggplot(plot_data, aes(x = reorder(BuildingName, delta), y = delta, fill = delta)) +
+   plotty <- ggplot(plot_data, aes(x = reorder(get(col.interest), delta),
+                                   y = delta,
+                                   fill = delta)) +
       geom_hline(yintercept = 0) +
       geom_bar(stat = "identity", width = 0.5) +
       scale_fill_gradient2(low = "red4",
@@ -10,7 +12,7 @@ hillsdale_grade_plot <- function(plot_data, gradename, subjectname){
                            midpoint = 0,
                            space = "Lab",
                            name = "%-Chg: Mean SGP*") +
-      xlab("Building Name") +
+      xlab(xlabel) +
       ylab("% Change") +
       labs(title = "% Change in Mean SGP*: 2015/2016 - 2016/2017 ",
            subtitle = paste0(subjectname,": ", gradename, "th Grade"),
