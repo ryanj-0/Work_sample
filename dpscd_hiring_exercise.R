@@ -20,6 +20,7 @@ repo <- "/Work_sample/work_sample"
 source(paste0(dir, repo,"/Functions/testinggroup_plot.R"))
 source(paste0(dir, repo,"/Functions/grade_plot.R"))
 source(paste0(dir, repo, "/Functions/dpscd_overall_plot.R"))
+source(paste0(dir, repo, "/Functions/comparison_plot.R"))
 
 
 ##### Import Data, Data Cleaning, and Data Prep #####
@@ -32,6 +33,7 @@ source(paste0(dir, repo,"/Data_work/data_work_cleaning.R"))
 # Data Prep
 source(paste0(dir, repo, "/Data_work/change_meansgp_by_isd.R"))
 source(paste0(dir, repo, "/Data_work/change_meansgp_hillsdale.R"))
+source(paste0(dir, repo, "/Data_work/overall_and_comparison.R"))
 
 
 ##### Year over Year (YoY) changes in MeanSGP by ISD #####
@@ -120,6 +122,8 @@ for (grd in 1:(length(isd.msgp.grade.delta[,unique(Grade)])+1)) {
   }
 }
 
+
+
 ##### Year over Year (YoY) changes in MeanSGP for Hillsdale ISD #####
 #--------------------------------------------------------------------
 # Looking for Testing Group and Grade disparities by buildings, respectively
@@ -197,22 +201,6 @@ for (grd in 1:(length(hillsdale.msgp.grade.delta[,unique(Grade)])+1)) {
                subjectname = bld.temp.sci[,unique(Subject)])
   }
 }
-
-##### Section 2 #####
-#--------------------
-# Line graph to show overall YoY changes
-
-
-
-
-
-
-##### Section 3 #####
-#--------------------
-# Looking to show the top & bottom 5 ISD
-# by each Subject (All Students, All Grades)
-source(paste0(dir, repo, "/Data_work/data_work_section3.R"))
-source(paste0(dir, repo, "/Functions/section3_plot.R"))
 
 
 
