@@ -6,13 +6,13 @@ rm(list = ls())
 # clears graphics devices to plot later
 graphics.off()
 
-if(getwd()==paste0("C:/Users/",Sys.info()[6],"/Documents/R")){
-   dir <- getwd()
-   message(paste0("Current working directory: ", getwd()))
+if(getwd()==paste0("C:/Users/",Sys.info()[6],"/Documents/R/")){
+   dir <- paste0(getwd(), "/")
+   message(paste0("Current working directory: ", getwd(), "/"))
 } else{
-   setwd(paste0("C:/Users/",Sys.info()[6],"/Documents/R"))
-   dir <- getwd()
-   message(paste0("Directory changed, set to: ", getwd()))
+   setwd(paste0("C:/Users/",Sys.info()[6],"/Documents/R/"))
+   dir <- paste0(getwd(), "/")
+   message(paste0("Directory changed, set to: ", getwd(), "/"))
 }
 
 # Loading Needed packages
@@ -21,10 +21,10 @@ if(getwd()==paste0("C:/Users/",Sys.info()[6],"/Documents/R")){
 
 require("pacman", character.only = TRUE)
 
-pkgs <- c("data.table",
-          "tidyverse",
-          "ggthemes",
+pkgs <- c("assertable",
+          "data.table",
           "ggrepel",
-          "svMisc")
+          "svMisc",
+          "tidyverse")
 
 p_load(pkgs, character.only = TRUE)
