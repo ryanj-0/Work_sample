@@ -14,26 +14,26 @@
 source("~/R/Work_sample/work_sample/system_init.R")
 
 # Set global variables
-repo <- "/Work_sample/work_sample"
+repo <- "Work_sample/work_sample/"
 
 # Global Functions
-source(paste0(dir, repo,"/Functions/testinggroup_plot.R"))
-source(paste0(dir, repo,"/Functions/grade_plot.R"))
-source(paste0(dir, repo, "/Functions/dpscd_overall_plot.R"))
-source(paste0(dir, repo, "/Functions/comparison_plot.R"))
+source(paste0(dir, repo, "Functions/testinggroup_plot.R"))
+source(paste0(dir, repo, "Functions/grade_plot.R"))
+source(paste0(dir, repo, "Functions/dpscd_overall_plot.R"))
+source(paste0(dir, repo, "Functions/comparison_plot.R"))
 
 
 ##### Import Data, Data Cleaning, and Data Prep #####
 #----------------------------------------------------
 # Import data
-source(paste0(dir, repo,"/Data_work/import_data.R"))
+source(paste0(dir, repo, "Data_work/import_data.R"))
 # Data cleaning, returns table, Yearall, with cleaned data
-source(paste0(dir, repo,"/Data_work/data_work_cleaning.R"))
+source(paste0(dir, repo, "Data_work/data_work_cleaning.R"))
 
 # Data Prep
-source(paste0(dir, repo, "/Data_work/change_meansgp_by_isd.R"))
-source(paste0(dir, repo, "/Data_work/change_meansgp_hillsdale.R"))
-source(paste0(dir, repo, "/Data_work/overall_and_comparison.R"))
+source(paste0(dir, repo, "Data_work/change_meansgp_by_isd.R"))
+source(paste0(dir, repo, "Data_work/change_meansgp_hillsdale.R"))
+source(paste0(dir, repo, "Data_work/overall_and_comparison.R"))
 
 
 ##### Year over Year (YoY) changes in MeanSGP by ISD #####
@@ -47,7 +47,7 @@ col.interest = "IsdName"
 #--- Testing Group ---
 
 # open pdf to populate with graphs
-pdf(file = paste0(dir, repo, "/Plots/YoY Percent Changes in MeanSGP by ISD and Testing Group.pdf"), width = 11, height = 8.5)
+pdf(file = paste0(dir, repo, "Plots/YoY Percent Changes in MeanSGP by ISD and Testing Group.pdf"), width = 11, height = 8.5)
 
 # for loop to plot YoY change in MeanSGP by testinggroup and subject
 for (isd in 1:(length(isd.msgp.delta[,unique(TestingGroup)])+1)) {
@@ -87,7 +87,7 @@ for (isd in 1:(length(isd.msgp.delta[,unique(TestingGroup)])+1)) {
 # Data for Science is only for Grades 0,11
 
 # open pdf to populate with graphs
-pdf(file = paste0(dir, repo, "/Plots/YoY Percent Changes in MeanSGP by ISD and Grade.pdf"), width = 11, height = 8.5)
+pdf(file = paste0(dir, repo, "Plots/YoY Percent Changes in MeanSGP by ISD and Grade.pdf"), width = 11, height = 8.5)
 
 for (grd in 1:(length(isd.msgp.grade.delta[,unique(Grade)])+1)) {
 
@@ -135,7 +135,7 @@ col.interest = "BuildingName"
 #--- Testing Group ---
 
 # open pdf to populate with graphs
-pdf(file = paste0(dir, repo, "/Plots/Hillsdale - Buildings Percent Change in MeanSGP by Testing Group.pdf"), width = 11, height = 8.5)
+pdf(file = paste0(dir, repo, "Plots/Hillsdale - Buildings Percent Change in MeanSGP by Testing Group.pdf"), width = 11, height = 8.5)
 
 for (bld in 1:(length(hillsdale.msgp.delta[,unique(TestingGroup)])+1)) {
 
@@ -171,7 +171,7 @@ for (bld in 1:(length(hillsdale.msgp.delta[,unique(TestingGroup)])+1)) {
 # Data for Science is only for Grades 0,11
 
 # open pdf to populate with graphs
-pdf(file = paste0(dir, repo, "/Plots/Hillsdale - Buildings, Percent Change in MeanSGP by Grade.pdf"), width = 11, height = 8.5)
+pdf(file = paste0(dir, repo, "Plots/Hillsdale - Buildings, Percent Change in MeanSGP by Grade.pdf"), width = 11, height = 8.5)
 
 for (grd in 1:(length(hillsdale.msgp.grade.delta[,unique(Grade)])+1)) {
 
@@ -208,7 +208,7 @@ for (grd in 1:(length(hillsdale.msgp.grade.delta[,unique(Grade)])+1)) {
 #--------------------------------------------
 
 # open pdf to be able to populate with graphs
-pdf(file = paste0(dir, repo, "/Plots/Overall & Comparison Plots.pdf"), width = 11, height = 8.5)
+pdf(file = paste0(dir, repo, "Plots/Overall & Comparison Plots.pdf"), width = 11, height = 8.5)
 
 #--- Plot showing YoY change in MeanSGP; Overall by Subject ---
 
