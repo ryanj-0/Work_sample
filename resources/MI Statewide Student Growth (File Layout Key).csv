@@ -1,0 +1,23 @@
+Student Growth,,,,,
+,,,,,
+Column Name,,,,,Description
+,,,,,
+SCHOOL_YEAR,,,,,School Year
+ISDCODE,,,,,Intermediate School District Code
+ISDNAME,,,,,Intermediate School District Name
+DISTRICTCODE,,,,,District Code
+DISTRICTNAME,,,,,District Name
+BUILDINGCODE,,,,,Building Code
+BUILDINGNAME,,,,,Building Name
+ENTITYTYPE,,,,,Entity Type
+GRADE,,,,,Grade
+SUBJECT,,,,,Subject
+TESTING_GROUP,,,,,Testing Group
+CountHigh,,,,,Count High
+NumberAboveAverageGrowth,,,,,Number Above Average Growth
+NumberBelowAverageGrowth,,,,,Number Below Average Growth
+PercentAboveAverage,,,,,Percent Above Average
+PercentAverageGrowth,,,,,Percent Average Growth
+PercentBelowAverage,,,,,Percent Below Average
+TotalIncluded,,,,,Total Included
+MeanSGP,,,,,Mean Student Growth Percentile
