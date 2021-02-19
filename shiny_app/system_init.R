@@ -7,12 +7,12 @@ rm(list = ls())
 graphics.off()
 
 if(getwd()==paste0("C:/Users/",Sys.info()[6],"/Documents/R")){
-   dir <- getwd()
-   message(paste0("Current working directory: ", getwd()))
+   dir <- paste0(getwd(), "/")
+   message(paste0("Current working directory: ", getwd(), "/"))
 } else{
-   setwd(paste0("C:/Users/",Sys.info()[6],"/Documents/R"))
-   dir <- getwd()
-   message(paste0("Directory changed, set to: ", getwd()))
+   setwd(paste0("C:/Users/",Sys.info()[6],"/Documents/R", "/"))
+   dir <- paste0(getwd(), "/")
+   message(paste0("Directory changed, set to: ", getwd(), "/"))
 }
 
 # Loading Needed packages
@@ -21,8 +21,21 @@ if(getwd()==paste0("C:/Users/",Sys.info()[6],"/Documents/R")){
 
 require("pacman", character.only = TRUE)
 
-pkgs <- c("data.table",
-          "tidyverse",
-          'shiny')
+pkgs <- c("assertable",
+          "data.table",
+          "ggrepel",
+          "shiny",
+          "svMisc",
+          "tidyverse")
 
-p_load(pkgs, character.only = TRUE,)
+p_load(pkgs, character.only = TRUE)
+
+# Set global variables
+repo <- "Work_sample/work_sample/"
+
+##### Import Data, Data Cleaning, and Data Prep #####
+#----------------------------------------------------
+# Import data
+source(paste0(dir, repo, "Data_work/import_data.R"))
+# Data cleaning, returns table, Yearall, with cleaned data
+source(paste0(dir, repo, "Data_work/data_work_cleaning.R"))

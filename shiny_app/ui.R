@@ -7,33 +7,30 @@
 #    http://shiny.rstudio.com/
 #
 
-##### System Initalization #####
-source("~/R/Work_sample/work_sample/shiny_app/system_init.R")
 
-# Set global variables
-repo <- "/Work_sample/work_sample"
-
-
-
-# Define UI for application that draws a histogram
+##### Define UI for application that draws a histogram #####
 shinyUI(fluidPage(
 
     # Application title
     titlePanel("Detroit Public School Community District (DPSCD)"),
 
-    # Sidebar with a slider input for number of bins
-    sidebarLayout(
+    # First row of side panel UI
+    fluidRow(
 
-
-        selectInput(inputId = "school.year",
-                    label = "Select School Year",
-                    choices =
-
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-            plotOutput("distPlot")
+        # 1x1
+        column(4,
+               selectInput(inputId = "grade_id" ,
+                           label = h4("Grade"),
+                           selected = "All Grades",
+                           choices = list("All Students" = 0,
+                                          "4th" = 4,
+                                          "5th" = 5,
+                                          "6th" = 6,
+                                          "7th" = 7,
+                                          "8th" = 8,
+                                          "11th" = 11,
+                                          )
+                           )
         )
     )
 ))

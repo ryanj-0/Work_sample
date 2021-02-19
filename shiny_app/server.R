@@ -7,7 +7,8 @@
 #    http://shiny.rstudio.com/
 #
 
-library(shiny)
+##### System Initialization #####
+source("~/R/Work_sample/work_sample/shiny_app/system_init.R")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
