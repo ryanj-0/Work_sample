@@ -21,10 +21,6 @@ data.dir <- "data/"
 archive.dir <- "archive/"
 raw.dir <- "raw/"
 rds.dir <- "working/"
-# data cleaning
-cleaning.dir <- "data_cleaning/"
-cleaning.plot.data <- "data_TL_plot/"
-switch.dir <- "switches/"
 # functions
 function.dir <- "functions/"
 

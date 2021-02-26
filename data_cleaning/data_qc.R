@@ -4,14 +4,14 @@
 data_qc <- function(curr_file){
 
    # Directories needed
-   switch.dir <- "switches/"
+   switch.dir <- "data_cleaning/switches/"
 
    # File to be QC checked
-   temp.file <- paste0(dir, repo, data.dir, curr_file)
+   temp.upload <- paste0(dir, repo, data.dir, curr_file)
 
    # Variables to be used
-   temp.table <- fread(temp.file)
-   mod.date <- substr(file.info(temp.file)$mtime, 1,10)
+   temp.table <- fread(temp.upload)
+   mod.date <- substr(file.info(temp.upload)$mtime, 1,10)
    rds.name <- paste0(file_path_sans_ext(curr_file), ".rds")
    check.names <- c("SchoolYear",
                     "IsdCode",
@@ -33,37 +33,71 @@ data_qc <- function(curr_file){
                     "TotalIncluded",
                     "MeanSGP")
 
-   # Check to see if first time loading data, save RDS of data for faster reading in future
+   # Check to see if first time loading data, if true, save RDS of data for faster reading in future
    if(!(file.exists(paste0(dir, repo, data.dir, rds.dir, rds.name)))){
 
       # save data to RDS for future reading in and get/assign data modified
-      old.rds <- saveRDS(temp.table, file = paste0(dir, repo, data.dir, rds.dir, rds.name))
-      old.rds
+      temp.rds <- saveRDS(temp.table, file = paste0(dir, repo, data.dir, rds.dir, rds.name))
+      temp.rds
       message("File created: ", paste0(dir, repo, data.dir, rds.dir, rds.name))
 
    }
 
-   # Check if file upload is different than current existing RDS file
+   # Check if upload file has any duplicates (s1..)
    if(any(duplicated(temp.table))){
 
       switch(menu(choices = c("Yes", "No"),
                   title = "Duplicate values found in data, would you like to view?"),
-             "Yes" = View(temp.table[which(duplicated(temp.table))]),
-             "No" = exit("Investigate data source and re-run")
+             "Yes" = source(paste0(dir, repo, switch.dir, "s1o1.R")),
+             "No" = source(paste0(dir, repo, switch.dir, "s1o2.R"))
       )
 
    }
 
-   # Check for duplicates in data, returns menu to check table if needed
-   if(any(duplicated(temp.table))){
+   # Check if RDS and Upload File have differing data
+   if(nrow(setdiff(temp.rds, temp.upload)) > 0){
 
+      rds.diff <- setdiff(temp.rds, temp.upload)
+      rds.count <- 1
+
+   }
+
+   if(nrow(setdiff(temp.upload, temp.rds)) > 0){
+
+      upload.diff <- setdiff(temp.upload, temp.rds)
+      upload.count <- 1
+
+   }
+
+   if(rds.count > 0 & upload.count > 0){
+
+      # s2
       switch(menu(choices = c("Yes", "No"),
-                  title = "Duplicate values found in data, would you like to view?"),
-             "Yes" = View(temp.table[which(duplicated(temp.table))]),
-             "No" = stop("Investigate data source and re-run")
+                  title = "Found data which does not match in both existing RDS and it's upload file, would you like to view the data?"),
+             "Yes" = source(paste0(dir, repo, switch.dir, "s2o1.R")),
+             "No" = source(paste0(dir, repo, switch.dir, "continue_check.R"))
+      )
+
+   }else if(rds.count > 0){
+
+      # s3
+      switch(menu(choices = c("Yes", "No"),
+                  title = "Found data in RDS that in not in Uploadfile, would you like to view the data?"),
+             "Yes" = source(paste0(dir, repo, switch.dir, "s3o1.R")),
+             "No" = source(paste0(dir, repo, switch.dir, "continue_check.R"))
+      )
+
+   }else if(upload.count > 0){
+
+      # s4
+      switch(menu(choices = c("Yes", "No"),
+                  title = "Found data in Upload File that in not in RDS, would you like to view the data?"),
+             "Yes" = source(paste0(dir, repo, switch.dir, "s4o1.R")),
+             "No" = source(paste0(dir, repo, switch.dir, "continue_check.R"))
       )
 
    }
+
 
    # Check for appropriate col names
    assert_colnames(data = temp.table,
@@ -72,7 +106,7 @@ data_qc <- function(curr_file){
 
    # Checks for appropriate values
    # NA
-   assert_values(data = temp,file,
+   assert_values(data = temp.table,
                  colnames = names(temp.table),
                  test = "not_na")
    # Values in range: Percent Above Average

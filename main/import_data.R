@@ -1,10 +1,6 @@
 ###### Import files for data analysis exercise #####
 #---------------------------------------------------
 
-# Data directory
-data.dir <- "Data/raw/"
-rds.dir <- "working/"
-
 # List of data to import
 files <- c("MI Statewide Student Growth 2015-16.csv",
            "MI Statewide Student Growth 2016-17.csv")
@@ -15,10 +11,10 @@ files <- c("MI Statewide Student Growth 2015-16.csv",
 
 
 # 2015 - 2016 School Year
-year15 <- fread(paste0(dir, repo, data.dir, files[1]))
+year15 <- fread(paste0(dir, repo, data.dir, raw.dir, files[1]))
 
 # 2016 - 2017 School Year
-year16 <- fread(paste0(dir, repo, data.dir, files[2]))
+year16 <- fread(paste0(dir, repo, data.dir, raw.dir, files[2]))
 
 # School years combined
 yearall <- rbind(year15, year16, use.names = T)
