@@ -11,7 +11,7 @@
 #---------------------------------------
 
 # System Initialization
-source("~/R/Work_sample/work_sample/system_init.R")
+source("~/R/Work_sample/work_sample/main/system_init.R")
 
 #---- Set global variables ---#
 # main dir
